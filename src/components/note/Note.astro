@@ -16,7 +16,14 @@ const { Content } = await render(note);
 	class:list={[isPreview && "bg-global-text/5 inline-grid rounded-md px-4 py-3"]}
 	data-pagefind-body={isPreview ? false : true}
 >
-	<Tag class="title" class:list={{ "text-base": isPreview }}>
+	<Tag class="title flex items-center gap-2" class:list={{ "text-base": isPreview }}>
+		{
+			note.data.lang && (
+				<span class="text-sm font-semibold text-gray-400 dark:text-gray-500">
+					{note.data.lang.toUpperCase()}
+				</span>
+			)
+		}
 		{
 			isPreview ? (
 				<a class="cactus-link" href={`/notes/${note.id}/`}>

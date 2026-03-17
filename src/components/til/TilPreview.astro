@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { HTMLTag, Polymorphic } from "astro/types";
+import FormattedDate from "@/components/FormattedDate.astro";
+
+type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
+	til: CollectionEntry<"til">;
+};
+
+const { as: Tag = "h2", til } = Astro.props;
+---
+
+{
+	til.data.lang ? (
+		<span class="w-7 font-semibold text-gray-400 sm:w-8 dark:text-gray-500">
+			{til.data.lang.toUpperCase()}
+		</span>
+	) : (
+		<span class="w-7 font-semibold text-gray-400 sm:w-8 dark:text-gray-500">EN</span>
+	)
+}
+<div class="flex flex-col gap-1 sm:mb-2">
+	<Tag class="text-base font-medium">
+		<a class="cactus-link" href={`/til/${til.id}/`}>
+			{til.data.title}
+		</a>
+	</Tag>
+	<div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+		<FormattedDate date={til.data.publishDate} />
+		{
+			til.data.tags && til.data.tags.length > 0 && (
+				<>
+					<span>—</span>
+					<span class="text-accent capitalize">{til.data.tags.join(" • ")}</span>
+				</>
+			)
+		}
+	</div>
+</div>

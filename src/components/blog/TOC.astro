@@ -14,9 +14,38 @@ const toc = generateToc(headings);
 
 <details open class="lg:sticky lg:top-12 lg:order-2 lg:-me-32 lg:basis-64">
 	<summary class="title hover:marker:text-accent cursor-pointer text-lg">Table of Contents</summary>
-	<nav class="ms-4 lg:w-full">
-		<ol class="mt-4">
+	<nav class="ms-2 mt-4 lg:w-full">
+		<ol>
 			{toc.map((heading) => <TOCHeading heading={heading} />)}
 		</ol>
 	</nav>
 </details>
+
+<style is:global>
+	@reference "tailwindcss";
+	.toc-li {
+		@apply relative ms-4;
+	}
+	.toc-li::before {
+		content: "";
+		@apply absolute top-0 bottom-0 -left-4 border-l border-black/20 transition-all duration-200 dark:border-white/20;
+	}
+	.toc-li::after {
+		content: "";
+		@apply absolute top-[15px] -left-4 w-3 border-b border-black/20 transition-all duration-200 dark:border-white/20;
+	}
+	.toc-li:last-child::before {
+		@apply bottom-auto h-[16px];
+	}
+	/* Hover effects for tree lines */
+	.toc-li:has(> a:hover)::before {
+		border-color: var(--color-accent);
+		box-shadow: -1px 0 0 currentColor;
+		color: var(--color-accent);
+	}
+	.toc-li:has(> a:hover)::after {
+		border-color: var(--color-accent);
+		box-shadow: 0 1px 0 currentColor;
+		color: var(--color-accent);
+	}
+</style>
