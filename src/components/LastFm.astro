@@ -1,6 +1,4 @@
 ---
-import { Icon } from "astro-icon/components";
-
 const username = import.meta.env.LASTFM_USERNAME || "";
 const apiKey = import.meta.env.LASTFM_API_KEY || "";
 ---
@@ -33,9 +31,8 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 	</div>
 
 	<!-- Hover Card (Discord style) -->
-	<div class="absolute top-full left-0 sm:left-auto sm:right-auto mt-3 hidden w-[320px] sm:w-[340px] flex-col bg-[#111214] dark:bg-[#111214] shadow-2xl rounded-xl border border-[#313338] p-4 z-50 group-hover/lastfm:flex cursor-default transition-all duration-200">
-		<h4 id="hover-status-title" class="font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase mb-1">NOT PLAYING</h4>
-		<p id="hover-status-subtitle" class="text-xs text-[#DBDEE1] mb-3">Here's the last track Firman queued up</p>
+	<div class="absolute top-full left-0 sm:left-auto sm:right-auto mt-3 flex w-[320px] sm:w-[340px] flex-col bg-[#111214] dark:bg-[#111214] shadow-2xl rounded-xl border border-[#313338] p-4 z-50 cursor-default opacity-0 invisible translate-y-2 pointer-events-none transition-all duration-300 delay-200 group-hover/lastfm:visible group-hover/lastfm:opacity-100 group-hover/lastfm:translate-y-0 group-hover/lastfm:pointer-events-auto group-hover/lastfm:delay-0">
+		<h4 id="hover-status-title" class="font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase mb-3">NOT PLAYING</h4>
 
 		<div class="flex items-center gap-3 mb-3 relative">
 			<img id="hover-art" src="" class="h-14 w-14 rounded-md object-cover bg-[#2b2d31] shrink-0 shadow-md" />
@@ -55,7 +52,7 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 			</button>
 		</div>
 		
-		<div id="history-dropdown" class="hidden flex-col space-y-1 mt-3 pt-3 border-t border-[#313338] max-h-48 overflow-y-auto pr-1">
+		<div id="history-dropdown" class="hidden flex-col space-y-1 mt-3 pt-3 border-t border-[#313338] max-h-48 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 			<div id="lastfm-recent-list" class="flex flex-col space-y-1">
 				<span class="text-xs text-[#B5BAC1] italic">Loading history...</span>
 			</div>
@@ -156,31 +153,28 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 
 				// Hover Card Logic
 				const hoverTitle = document.getElementById("hover-status-title");
-				const hoverSubtitle = document.getElementById("hover-status-subtitle");
 				const hoverArt = document.getElementById("hover-art") as HTMLImageElement;
 				const hoverTrackText = document.getElementById("hover-track");
 				const hoverArtistText = document.getElementById("hover-artist");
 				const hoverTime = document.getElementById("hover-time");
 
-				if (hoverTitle && hoverSubtitle && hoverArt && hoverTrackText && hoverArtistText && hoverTime) {
+				if (hoverTitle && hoverArt && hoverTrackText && hoverArtistText && hoverTime) {
 					hoverArt.src = image || "https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
 					hoverTrackText.textContent = trackData.name;
 					hoverArtistText.textContent = trackData.artist?.["#text"] || "Unknown Info";
 
+					let dateStr = "Unknown time";
 					if (isPlaying) {
 						hoverTitle.textContent = "NOW PLAYING";
-						hoverSubtitle.textContent = "Presently listening to";
-						hoverTime.textContent = "Listening right now...";
+						dateStr = new Date().toLocaleString('en-US');
 					} else {
 						hoverTitle.textContent = "NOT PLAYING";
-						hoverSubtitle.textContent = "Here's the last track Firman queued up";
-						let dateStr = "Unknown time";
 						if (trackData.date && trackData.date.uts) {
 							const d = new Date(parseInt(trackData.date.uts) * 1000);
 							dateStr = d.toLocaleString('en-US');
 						}
-						hoverTime.textContent = `Last listened ${dateStr}`;
 					}
+					hoverTime.textContent = `Last listened ${dateStr}`;
 				}
 
 				const toggleHistoryBtn = document.getElementById("open-history-btn");
