@@ -1,12 +1,17 @@
 import type { AstroExpressiveCodeOptions } from "astro-expressive-code";
 import type { SiteConfig } from "@/types";
+import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
+import { pluginFileIcons } from "@xt0rted/expressive-code-file-icons";
+import { pluginColorChips } from "expressive-code-color-chips";
+import ecTwoSlash from "expressive-code-twoslash";
+import { pluginTypewriter } from "expressive-code-typewriter";
 
 export const siteConfig: SiteConfig = {
 	// Used as both a meta property (src/components/BaseHead.astro L:31 + L:49) & the generated satori png (src/pages/og-image/[slug].png.ts)
-	author: "Chris Williams",
+	author: "Firman Fathoni",
 	// Date.prototype.toLocaleDateString() parameters, found in src/utils/date.ts.
 	date: {
-		locale: "en-GB",
+		locale: "en-US",
 		options: {
 			day: "numeric",
 			month: "short",
@@ -14,9 +19,9 @@ export const siteConfig: SiteConfig = {
 		},
 	},
 	// Used as the default description meta property and webmanifest description
-	description: "An opinionated starter theme for Astro",
+	description: "Hiiruki's lab",
 	// HTML lang property, found in src/layouts/Base.astro L:18 & astro.config.ts L:48
-	lang: "en-GB",
+	lang: "en-US",
 	// Meta property, found in src/components/BaseHead.astro L:42
 	ogLocale: "en_GB",
 	/* 
@@ -25,9 +30,9 @@ export const siteConfig: SiteConfig = {
 		- The link value found in src/components/layout/Header.astro L:35
 		- In the footer found in src/components/layout/Footer.astro L:12
 	*/
-	title: "Astro Cactus",
+	title: "Hiiruki's lab",
 	// ! Please remember to replace the following site property with your own domain, used in astro.config.ts
-	url: "https://astro-cactus.chriswilliams.dev/",
+	url: "https://hiiruki.dev/",
 };
 
 // Used to generate links in both the Header & Footer.
@@ -47,6 +52,21 @@ export const menuLinks: { path: string; title: string }[] = [
 	{
 		path: "/notes/",
 		title: "Notes",
+	},
+	{
+		path: "/til/",
+		title: "TIL",
+	},
+];
+
+export const footerLinks: { path: string; title: string }[] = [
+	{
+		path: "/privacy/",
+		title: "Privacy Policy",
+	},
+	{
+		path: "/disclaimer/",
+		title: "Disclaimer",
 	},
 ];
 
@@ -75,7 +95,20 @@ export const expressiveCodeOptions: AstroExpressiveCodeOptions = {
 		// return default selector
 		return `[data-theme="${theme.name}"]`;
 	},
+	defaultProps: {
+		showLineNumbers: false,
+	},
 	// One dark, one light theme => https://expressive-code.com/guides/themes/#available-themes
-	themes: ["dracula", "github-light"],
-	useThemedScrollbars: false,
+	themes: ["github-dark-default", "github-light"],
+	plugins: [
+		pluginFileIcons({
+			iconClass: "size-4",
+			titleClass: "flex items-center gap-1",
+		}) as any,
+		pluginLineNumbers(),
+		pluginColorChips(),
+		ecTwoSlash(),
+		pluginTypewriter(),
+	],
+	useThemedScrollbars: true,
 };

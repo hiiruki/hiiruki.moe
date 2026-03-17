@@ -82,3 +82,162 @@
 	--tw-prose-quotes: var(--color-quote);
 	--tw-prose-th-borders: #666;
 }
+
+.role-cycler::before {
+	content: "a systems engineer";
+	animation: role-cycle 24s infinite;
+}
+
+@keyframes role-cycle {
+	0%,
+	10% {
+		content: "a systems engineer";
+		opacity: 1;
+	}
+	11.25% {
+		content: "a systems engineer";
+		opacity: 0;
+	}
+	11.26% {
+		content: "a developer";
+		opacity: 0;
+	}
+	12.5%,
+	22.5% {
+		content: "a developer";
+		opacity: 1;
+	}
+	23.75% {
+		content: "a developer";
+		opacity: 0;
+	}
+	23.76% {
+		content: "a technical support";
+		opacity: 0;
+	}
+	25%,
+	35% {
+		content: "a technical support";
+		opacity: 1;
+	}
+	36.25% {
+		content: "a technical support";
+		opacity: 0;
+	}
+	36.26% {
+		content: "a systems administrator";
+		opacity: 0;
+	}
+	37.5%,
+	47.5% {
+		content: "a systems administrator";
+		opacity: 1;
+	}
+	48.75% {
+		content: "a systems administrator";
+		opacity: 0;
+	}
+	48.76% {
+		content: "a cloud engineer";
+		opacity: 0;
+	}
+	50%,
+	60% {
+		content: "a cloud engineer";
+		opacity: 1;
+	}
+	61.25% {
+		content: "a cloud engineer";
+		opacity: 0;
+	}
+	61.26% {
+		content: "a cybersecurity enthusiast";
+		opacity: 0;
+	}
+	62.5%,
+	72.5% {
+		content: "a cybersecurity enthusiast";
+		opacity: 1;
+	}
+	73.75% {
+		content: "a cybersecurity enthusiast";
+		opacity: 0;
+	}
+	73.76% {
+		content: "a weeb";
+		opacity: 0;
+	}
+	75%,
+	85% {
+		content: "a weeb";
+		opacity: 1;
+	}
+	86.25% {
+		content: "a weeb";
+		opacity: 0;
+	}
+	86.26% {
+		content: "a gamer";
+		opacity: 0;
+	}
+	87.5%,
+	97.5% {
+		content: "a gamer";
+		opacity: 1;
+	}
+	98.75% {
+		content: "a gamer";
+		opacity: 0;
+	}
+	98.76% {
+		content: "a systems engineer";
+		opacity: 0;
+	}
+	100% {
+		content: "a systems engineer";
+		opacity: 1;
+	}
+}
+
+/* Ensure Expressive Code file icons align properly with the title */
+.expressive-code .frame .header .title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
+.expressive-code .frame .header .title svg {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* KBD Confetti Effect */
+@keyframes kbd-confetti-burst {
+  0% {
+    opacity: 1;
+    box-shadow: 
+      0 0 0 2px #ef4444, 0 0 0 2px #22c55e, 0 0 0 2px #3b82f6, 
+      0 0 0 2px #eab308, 0 0 0 2px #06b6d4, 0 0 0 2px #d946ef;
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 
+      -20px -25px 0 -1px #ef4444, 30px -20px 0 -1px #22c55e, -30px 20px 0 -1px #3b82f6, 
+      20px 30px 0 -1px #eab308, -25px -25px 0 -1px #06b6d4, 25px 25px 0 -1px #d946ef;
+  }
+}
+
+kbd:active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+  animation: kbd-confetti-burst 0.4s ease-out forwards;
+}

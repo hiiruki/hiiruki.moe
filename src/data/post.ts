@@ -19,7 +19,14 @@ export async function getTagMeta(tag: string): Promise<CollectionEntry<"tag"> | 
  *  Note: This function doesn't filter draft posts, pass it the result of getAllPosts above to do so.
  */
 export function groupPostsByYear(posts: CollectionEntry<"post">[]) {
-	return Object.groupBy(posts, (post) => post.data.publishDate.getFullYear().toString());
+	return posts.reduce((acc, post) => {
+		const year = post.data.publishDate.getFullYear().toString();
+		if (!acc[year]) {
+			acc[year] = [];
+		}
+		acc[year].push(post);
+		return acc;
+	}, {} as Record<string, CollectionEntry<"post">[]>);
 }
 
 /** returns all tags created from posts (inc duplicate tags)
