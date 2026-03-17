@@ -1,10 +1,12 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry } from "astro:content";
 import PostPreview from "@/components/blog/PostPreview.astro";
-import Note from "@/components/note/Note.astro";
+// import Note from "@/components/note/Note.astro";
 import SocialList from "@/components/SocialList.astro";
 import { getAllPosts } from "@/data/post";
 import PageLayout from "@/layouts/Base.astro";
+import StatusCards from "@/components/StatusCards.astro";
+import LastFm from "@/components/LastFm.astro";
 import { collectionDateSort } from "@/utils/date";
 
 // Posts
@@ -18,30 +20,61 @@ const MAX_PINNED_POSTS = 3;
 const pinnedPosts = allPostsByDate.filter((p) => p.data.pinned).slice(0, MAX_PINNED_POSTS);
 
 // Notes
-const MAX_NOTES = 5;
-const allNotes = await getCollection("note");
-const latestNotes = allNotes
-	.sort(collectionDateSort)
-	.slice(0, MAX_NOTES) as CollectionEntry<"note">[];
+// const MAX_NOTES = 5;
+// const allNotes = await getCollection("note");
+// const latestNotes = allNotes
+// 	.sort(collectionDateSort)
+// 	.slice(0, MAX_NOTES) as CollectionEntry<"note">[];
 ---
 
 <PageLayout meta={{ title: "Home" }}>
+	<!-- <div
+		aria-hidden="true"
+		class="matrix-ascii-art text-accent -mx-1 -mt-8 mb-12 block w-[calc(100%+0.5rem)] overflow-hidden text-justify align-middle text-[0.35rem] font-medium tracking-widest opacity-70 select-none sm:mt-2 sm:text-[0.54rem] md:mt-2 md:text-[0.82rem]"
+	>
+	</div> -->
 	<section>
-		<h1 class="title mb-12">Hello World!</h1>
+		<!-- <h1 class="title mb-12">Hello World!</h1> -->
+		<h2 class="title mb-6 text-xl">Hello World!</h2>
 		<p class="mb-4">
-			Hi, I’m a theme for Astro, a simple starter that you can use to create your website or blog.
-			If you want to know more about how you can customise me, add more posts, and make it your own,
-			click on the GitHub icon link below and it will take you to my repo.
+			Hi, I’m <span class="glitch-name"></span>, <span class="text-accent role-cycler font-semibold"></span> who loves building cool
+			stuff.
 		</p>
+
+<style>
+	.glitch-name {
+		position: relative;
+		display: inline-block;
+		font-weight: 700;
+	}
+	.glitch-name::before {
+		content: "Firman";
+		animation: glitch-swap 5s infinite;
+	}
+
+	@keyframes glitch-swap {
+		0%, 25% { content: "Firman"; transform: none; filter: none; }
+		25.1% { content: "F1rm@n"; transform: translate(2px, 1px); filter: drop-shadow(-2px 0 #d482ab) drop-shadow(2px 0 #2abc89); }
+		25.2% { content: "Hiiruki"; transform: translate(-2px, -1px); filter: drop-shadow(2px 0 #d482ab) drop-shadow(-2px 0 #2abc89); }
+		25.3% { content: "H!1ruk!"; transform: translate(1px, 2px); filter: drop-shadow(-1px -1px #d482ab) drop-shadow(1px 1px #2abc89); }
+		25.4%, 85% { content: "Hiiruki"; transform: none; filter: none; }
+		85.1% { content: "H1!ruki"; transform: translate(-1px, 1px); filter: drop-shadow(2px 0 #d482ab) drop-shadow(-2px 0 #2abc89); }
+		85.2% { content: "Firman"; transform: translate(2px, -1px); filter: drop-shadow(-2px 0 #d482ab) drop-shadow(2px 0 #2abc89); }
+		85.3%, 100% { content: "Firman"; transform: none; filter: none; }
+	}
+</style>
 		<SocialList />
+		<LastFm />
+		<!-- <StatusCards /> -->
 	</section>
+
 	{
 		pinnedPosts.length > 0 && (
 			<section class="mt-16">
 				<h2 class="title mb-6 text-xl">Pinned Posts</h2>
 				<ul class="space-y-4" role="list">
 					{pinnedPosts.map((p) => (
-						<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+						<li class="grid grid-cols-[auto_1fr] gap-1">
 							<PostPreview post={p} />
 						</li>
 					))}
@@ -54,14 +87,14 @@ const latestNotes = allNotes
 		<ul class="space-y-4" role="list">
 			{
 				latestPosts.map((p) => (
-					<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+					<li class="grid grid-cols-[auto_1fr] gap-1">
 						<PostPreview post={p} />
 					</li>
 				))
 			}
 		</ul>
 	</section>
-	{
+	<!-- {
 		latestNotes.length > 0 && (
 			<section class="mt-16">
 				<h2 class="title text-accent mb-6 text-xl">
@@ -76,5 +109,5 @@ const latestNotes = allNotes
 				</ul>
 			</section>
 		)
-	}
+	} -->
 </PageLayout>

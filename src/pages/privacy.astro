@@ -1,0 +1,113 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+
+const meta = {
+	description: "Website privacy policy",
+	title: "Privacy Policy",
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6 text-xl">Privacy Policy</h1>
+	<ul class="list-outside list-disc space-y-3 pl-5" role="list">
+		<li>
+			This website is created with <a
+				class="cactus-link inline-block"
+				href="https://astro.build/"
+				target="_blank"
+				rel="noopener noreferrer">Astro</a
+			>, a JavaScript web framework optimized for building fast, content-driven websites and a <a
+				class="cactus-link inline-block"
+				href="https://en.wikipedia.org/wiki/Static_site_generator"
+				title="Static Site Generator (SSG) @ Wikipedia"
+				target="_blank"
+				rel="noopener noreferrer">Static Site Generator (SSG)</a
+			>. It does not use cookies of any kind. This site uses <code>localStorage</code><sup
+				><a class="cactus-link inline-block" href="#fn1" id="ref1">1</a></sup
+			> for the purpose of switching between light and dark themes for UI/UX, with no interaction with
+			the server, only on the client side. There are no forms or other mechanisms that process personal
+			data.
+		</li>
+		<li>
+			This Website is hosted in <a
+				class="cactus-link inline-block"
+				href="https://pages.cloudflare.com/"
+				target="_blank"
+				rel="noopener noreferrer">Cloudflare Pages</a
+			>. Cloudflare may collect user personal information from visitors to this website, including
+			logs of visitor IP addresses, to comply with legal obligations, and to maintain the security
+			and integrity of the website and the service. See the Netlify Privacy Statement for details.<sup
+				><a class="cactus-link inline-block" href="#fn2" id="ref2">2</a></sup
+			>
+		</li>
+		<li>
+			All external links open in a new tab and by default are told not to send a referrer in the
+			header. I do not use an anonymizing service so that you will know exactly where the link will
+			take you to. Also, I use <code>noopener</code> attribute, which prevents the opening page to gain
+			any kind of access to the original page.
+		</li>
+		<li>
+			If any external links are missing the <code>rel="external nofollow noopener noreferrer"</code
+			><sup><a class="cactus-link inline-block" href="#fn3" id="ref3">3</a></sup> let me know and I'll
+			update it ASAP.
+		</li>
+		<li>
+			I will never add user tracking/analytics of any type because I simply do not care. I don't
+			care how popular the site is or isn't - <em>it exists for my personal satisfaction</em>.
+		</li>
+		<li>
+			Apart from this, no data is collected, stored or evaluated. No ads, no tracking/analytics,
+			just my articles to read.
+		</li>
+	</ul>
+
+	<h2 class="title mt-10 mb-4 text-lg">Footnotes</h2>
+	<ol class="list-outside list-decimal space-y-3 pl-5 text-sm" role="list">
+		<li id="fn1">
+			<a
+				class="cactus-link inline-block"
+				href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API"
+				title="Web Storage API @ MDN Web Docs"
+				target="_blank"
+				rel="noopener noreferrer">MDN Web Docs: Web Storage API</a
+			> &amp; <a
+				class="cactus-link inline-block"
+				href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"
+				title="localStorage @ MDN Web Docs"
+				target="_blank"
+				rel="noopener noreferrer">MDN Web Docs: Local Storage</a
+			>
+			<a class="cactus-link inline-block" href="#ref1" title="Jump back to footnote 1 in the text."
+				>↩</a
+			>
+		</li>
+		<li id="fn2">
+			<a
+				class="cactus-link inline-block"
+				href="https://www.cloudflare.com/trust-hub/gdpr/"
+				target="_blank"
+				rel="noopener noreferrer">Cloudflare and GDPR compliance</a
+			> &amp; <a
+				class="cactus-link inline-block"
+				href="https://www.cloudflare.com/privacypolicy/"
+				target="_blank"
+				rel="noopener noreferrer">Cloudflares's Privacy Statement</a
+			>
+			<a class="cactus-link inline-block" href="#ref2" title="Jump back to footnote 2 in the text."
+				>↩</a
+			>
+		</li>
+		<li id="fn3">
+			<a
+				class="cactus-link inline-block"
+				href="https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types"
+				title="Link types @ MDN Web Docs"
+				target="_blank"
+				rel="noopener noreferrer">MDN Web Docs: Link types</a
+			>
+			<a class="cactus-link inline-block" href="#ref3" title="Jump back to footnote 3 in the text."
+				>↩</a
+			>
+		</li>
+	</ol>
+</PageLayout>

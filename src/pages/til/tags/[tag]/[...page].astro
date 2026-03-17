@@ -1,0 +1,80 @@
+---
+import { render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { Icon } from "astro-icon/components";
+import TilPreview from "@/components/til/TilPreview.astro";
+import Pagination from "@/components/Paginator.astro";
+import { getAllTil, getUniqueTilTags } from "@/data/til";
+import { getTagMeta } from "@/data/post";
+import PageLayout from "@/layouts/Base.astro";
+import { collectionDateSort } from "@/utils/date";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const allTil = await getAllTil();
+	const sortedTil = allTil.sort(collectionDateSort);
+	const uniqueTags = getUniqueTilTags(sortedTil);
+
+	return uniqueTags.flatMap((tag) => {
+		const tilsWithTag = sortedTil.filter((til) => til.data.tags?.includes(tag));
+		return paginate(tilsWithTag, {
+			pageSize: 20,
+			params: { tag },
+		});
+	});
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { page } = Astro.props as Props;
+const { tag } = Astro.params;
+const tagMeta = await getTagMeta(tag);
+
+const TagContent = tagMeta ? (await render(tagMeta)).Content : null;
+
+const meta = {
+	description: tagMeta?.data.description ?? `View all TILs with the tag - ${tag}`,
+	title: tagMeta?.data.title ?? `TILs about ${tag}`,
+};
+
+const paginationProps = {
+	...(page.url.prev && {
+		prevUrl: {
+			text: "← Previous Tags",
+			url: page.url.prev,
+		},
+	}),
+	...(page.url.next && {
+		nextUrl: {
+			text: "Next Tags →",
+			url: page.url.next,
+		},
+	}),
+};
+---
+
+<PageLayout meta={meta}>
+	<nav class="mb-8" aria-label="Breadcrumbs">
+		<ul class="flex items-center">
+			<li class="flex items-center">
+				<a class="text-accent" href="/til/tags/">TIL Tags</a>
+				<Icon aria-hidden="true" name="mdi:chevron-right" class="mx-1.5" />
+			</li>
+			<li aria-current="page" class=""><span aria-hidden="true">#</span>{tag}</li>
+		</ul>
+	</nav>
+	<h1 class="title mb-8 capitalize">{tagMeta?.data.title ?? `TILs about ${tag}`}</h1>
+	<div class="prose prose-sm prose-cactus mb-16 max-w-none">
+		{tagMeta?.data.description && <p>{tagMeta.data.description}</p>}
+		{TagContent && <TagContent />}
+	</div>
+	<ul class="space-y-6 text-start" role="list">
+		{
+			page.data.map((til) => (
+				<li class="grid grid-cols-[auto_1fr] gap-1">
+					<TilPreview as="h2" til={til} />
+				</li>
+			))
+		}
+	</ul>
+	<Pagination {...paginationProps} />
+</PageLayout>

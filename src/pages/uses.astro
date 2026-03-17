@@ -1,0 +1,98 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+
+const meta = {
+	description: "Software and Hardware I use.",
+	title: "Uses",
+};
+
+const hardware = [
+	{
+		name: "Computer",
+		desc: "Asus TUF FX506IH (A15)",
+		link: "https://www.asus.com/laptops/for-gaming/tuf-gaming/asus-tuf-gaming-a15/",
+	},
+	{ name: "Phone", desc: "iPhone 15, Samsung A06", link: "" },
+];
+
+const software = [
+	{ name: "Browser", desc: "Brave", link: "https://brave.com/" },
+	{ name: "Notes", desc: "Obsidian, Notion", link: "https://obsidian.md/" },
+	{ name: "Design", desc: "Figma", link: "https://www.figma.com/" },
+	{ name: "Music", desc: "Spotify, Apple Music", link: "" },
+	{ name: "Chat", desc: "Discord, Telegram, Whatsapp", link: "" },
+];
+
+const thisSite = [
+	{ name: "Framework", desc: "Astro", link: "https://astro.build/" },
+	{ name: "Styling", desc: "Tailwind CSS", link: "https://tailwindcss.com/" },
+	{ name: "Content", desc: "MD, MDX", link: "" },
+	{ name: "Hosting", desc: "Cloudflare Pages", link: "https://pages.cloudflare.com/" },
+	{ name: "Repository", desc: "GitHub", link: "https://github.com/" },
+];
+
+const sections = [
+	{
+		title: "Hardware",
+		items: hardware,
+	},
+	{
+		title: "Software",
+		items: software,
+	},
+	{
+		title: "This Site",
+		items: thisSite,
+	},
+];
+---
+
+<PageLayout meta={meta}>
+	<div class="mb-14">
+		<h1 class="title mb-4">Uses</h1>
+		<p class="opacity-70">Software and Hardware I use.</p>
+	</div>
+
+	<div class="space-y-16">
+		{
+			sections.map((section, index) => {
+				const sectionNumber = String(index + 1).padStart(2, "0");
+				return (
+					<section class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-8">
+						<div class="text-accent pt-[2px] text-xs font-semibold">{sectionNumber}</div>
+						<div class="flex flex-col gap-8">
+							<div class="flex items-center gap-4">
+								<h2 class="text-xs font-semibold tracking-widest uppercase opacity-60">
+									{section.title}
+								</h2>
+								<div class="bg-global-text h-px flex-grow opacity-20" />
+							</div>
+
+							<dl class="flex flex-col gap-6">
+								{section.items.map(({ name, desc, link }) => (
+									<div class="flex flex-col gap-1 sm:flex-row sm:gap-6">
+										<dt class="min-w-[140px] font-medium">{name}</dt>
+										<dd class="opacity-70 sm:flex-1">
+											{link ? (
+												<a
+													href={link}
+													class="cactus-link"
+													target="_blank"
+													rel="noopener noreferrer"
+												>
+													{desc}
+												</a>
+											) : (
+												desc
+											)}
+										</dd>
+									</div>
+								))}
+							</dl>
+						</div>
+					</section>
+				);
+			})
+		}
+	</div>
+</PageLayout>

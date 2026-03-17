@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import PageLayout from "@/layouts/Base.astro";
+import FormattedDate from "@/components/FormattedDate.astro";
+
+// if you're using an adaptor in SSR mode, getStaticPaths wont work -> https://docs.astro.build/en/guides/routing/#modifying-the-slug-example-for-ssr
+export const getStaticPaths = (async () => {
+	const allTil = await getCollection("til");
+	return allTil.map((til) => ({
+		params: { slug: til.id },
+		props: { til },
+	}));
+}) satisfies GetStaticPaths;
+
+export type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { til } = Astro.props;
+const { Content } = await render(til);
+
+const meta = {
+	description:
+		til.data.description || `Read my TIL posted on: ${til.data.publishDate.toLocaleDateString()}`,
+	title: til.data.title,
+};
+---
+
+<PageLayout meta={meta}>
+	<div class="mb-8">
+		<h1 class="title mb-10 text-lg italic">Today I Learned - Firman</h1>
+		<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+			Published <FormattedDate date={til.data.publishDate} />
+		</p>
+		<h2 class="title mb-6 text-3xl">{til.data.title}</h2>
+		{
+			til.data.tags && til.data.tags.length > 0 && (
+				<ul class="mb-8 flex flex-wrap gap-2" aria-label="Tags">
+					{til.data.tags.map((tag) => (
+						<li>
+							<a href={`/til/tags/${tag}/`} class="cactus-link inline-block">
+								<span class="inline-block rounded bg-gray-100 px-2 py-1 text-sm leading-relaxed text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+									&#35;{tag}
+								</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+
+	<article
+		class="prose prose-sm prose-cactus prose-headings:font-semibold prose-headings:text-accent-2 prose-headings:before:absolute prose-headings:before:-ms-4 prose-headings:before:text-gray-600 prose-headings:hover:before:text-accent sm:prose-headings:before:content-['#'] sm:prose-th:before:content-none max-w-none"
+		data-pagefind-body
+	>
+		<Content />
+	</article>
+</PageLayout>

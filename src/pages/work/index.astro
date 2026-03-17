@@ -1,0 +1,217 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+
+const meta = {
+	description: "My professional experience and work history.",
+	title: "Work Experience",
+};
+
+// Auto-import all images inside the work subdirectories (collega, hit-digital, etc.)
+const localImages = import.meta.glob<{ default: ImageMetadata }>("./*/*.{png,jpg,jpeg,webp,svg}", {
+	eager: true,
+});
+
+function resolveImage(path: string) {
+	if (path.startsWith("http") || path.startsWith("data:")) return path;
+	// Resolve the dynamic path using the eager glob
+	const image = localImages[path];
+	return image ? image.default.src : path;
+}
+
+const experiences = [
+	{
+		company: "Collega Inti Pratama, PT",
+		logo: "./collega/collega-logo.png",
+		employmentType: "Contract",
+		totalDuration: "6 mos",
+		locationType: "On-site",
+		isMultiRole: true,
+		roles: [
+			{
+				title: "Technical Support",
+				date: "Dec 2025 - Present",
+				duration: "4 mos",
+				location: "Surabaya, East Java, Indonesia",
+				description: "Support core banking infrastructure at Data Center (DC Surabaya)",
+			},
+			{
+				title: "Technical Support",
+				date: "Oct 2025 - Dec 2025",
+				duration: "3 mos",
+				location: "Bogor, West Java, Indonesia",
+				description: "Support core banking infrastructure at Data Center (DC Sentul)",
+			},
+		],
+	},
+	{
+		company: "HIT DIGITAL INDONESIA",
+		title: "System Administrator",
+		logo: "./hit-digital/hit-logo.png",
+		employmentType: "Internship",
+		date: "Sep 2024 - Dec 2024",
+		duration: "4 mos",
+		location: "Banjarbaru, South Kalimantan, Indonesia",
+		locationType: "On-site",
+		isMultiRole: false,
+		description: "MSIB Kampus Merdeka Batch 7\nHasnur Group Quality Internship (H-QIP)",
+		do: [
+			"Install and configure Wazuh on Ubuntu 20.04.6 LTS",
+			"Install and configure Zabbix on Ubuntu 24.04.1 LTS",
+			"Setup VMware ESXi on Dell T30 & Dell T150",
+			"Install and configure Windows Server 2012 R2 (Datacenter) & Windows Server 2008 R2",
+			"Setup Active Directory on Windows Server 2008 R2 Datacenter @ Dell T30 & Windows Server 2012 @ Dell T150",
+			"Setup AIS Icom® MA-500TR and OpenCPN as chart plotter and navigation software.",
+			"Troubleshoot Hikvision CCTV & NVR issue also manage driver (Hikvision iVMS 4200 Lite)",
+			"Learn OSPF dynamic routing on MikroTik RouterOS",
+			"Setup MikroTik HAP Lite, RB1100AHx2, RB450Gx4, MikroTik LHG XL 52 ac, MikroTik SXtsq 5 ac, SXT Lite2, TP-Link EAP110-Outdoor, Ubiquiti® airFiber AF-5XHD with AF-5G30-S45 antenna, Ubiquiti® airMAX® ac BaseStation R5AC-Lite with RocketDish™ RD-5G30- LW antenna, NetLINK HTB-3100.",
+			"Setting Amplifier ZA-3224DMZ-AS & Ceiling Speaker ZS-2360-AS",
+			"Site inspection @ Office Alalak, GIBS, BPP, KM 01, HCT, KPP",
+		],
+	},
+	{
+		company: "Infinite Learning Indonesia",
+		title: "IBM Academy For Hybrid Cloud & AI",
+		logo: "./infinite-learning/infinite-learning-logo.png",
+		employmentType: "Apprenticeship",
+		date: "Aug 2023 - Dec 2023",
+		duration: "5 mos",
+		location: "Batam, Riau Islands, Indonesia",
+		locationType: "Hybrid",
+		isMultiRole: false,
+		description: "MSIB Kampus Merdeka Batch 5",
+		// images: [
+		// 	"./infinite-learning/certificate.png",
+		// 	"./infinite-learning/activity-1.png",
+		// 	"./infinite-learning/activity-2.png",
+		// 	"./infinite-learning/activity-3.png",
+		// 	"./infinite-learning/activity-4.png",
+		// 	"./infinite-learning/activity-5.png",
+		// ],
+		do: [
+			"Acquire expertise in AI, cybersecurity, Red Hat Enterprise Linux System Administration and industry-specific abilities through direct guidance from Nongsa Digital's engineers and partners.",
+		],
+		skills: "Linux System Administration, Cyber Threat Intelligence (CTI) and +5 skills",
+	},
+];
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-8 text-2xl">Work Experience</h1>
+
+	<div class="space-y-12">
+		{
+			experiences.map((exp: any) => (
+				<div class="flex flex-col sm:flex-row gap-4">
+					<div class="flex-shrink-0 mt-1">
+						<img
+							src={resolveImage(exp.logo)}
+							alt={`${exp.company} logo`}
+							class="w-12 h-12 object-contain rounded-md shadow-sm border border-gray-200 dark:border-gray-800"
+						/>
+					</div>
+
+					<div class="flex-grow">
+						{exp.isMultiRole ? (
+							<div class="mb-4">
+								<h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">{exp.company}</h2>
+								<p class="text-sm text-gray-600 dark:text-gray-400">
+									{exp.employmentType} · {exp.totalDuration}
+								</p>
+								<p class="text-sm text-gray-500 dark:text-gray-400">{exp.locationType}</p>
+							</div>
+						) : (
+							<div class="mb-2">
+								<h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">{exp.title}</h2>
+								<div class="text-base text-gray-800 dark:text-gray-200">
+									<span class="font-medium">{exp.company}</span> · {exp.employmentType}
+								</div>
+								<p class="text-sm text-gray-500 dark:text-gray-400">
+									{exp.date} · {exp.duration}
+								</p>
+								<p class="text-sm text-gray-500 dark:text-gray-400">
+									{exp.location} · {exp.locationType}
+								</p>
+							</div>
+						)}
+
+						{/* Multi-role Timeline Box */}
+						{exp.isMultiRole && exp.roles && (
+							<div class="relative mt-4 space-y-6 before:absolute before:inset-y-0 before:left-[4.5px] before:w-[2px] before:bg-gray-300 dark:before:bg-gray-700">
+								{exp.roles.map((role: any) => (
+									<div class="relative pl-6">
+										{/* Timeline Dot */}
+										<div class="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-gray-400 dark:bg-gray-500 ring-[3px] ring-white dark:ring-[#1d1f21]" />
+										<div class="flex flex-col">
+											<h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+												{role.title}
+											</h3>
+											<p class="text-sm text-gray-500 dark:text-gray-400">
+												{role.date} · {role.duration}
+											</p>
+											<p class="text-sm text-gray-500 dark:text-gray-400">{role.location}</p>
+											{role.description && (
+												<p class="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+													{role.description}
+												</p>
+											)}
+											{role.do && (
+												<ul class="mt-2 list-outside list-disc pl-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed space-y-1">
+													{role.do.map((item: string) => (
+														<li>{item}</li>
+													))}
+												</ul>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+
+						{/* Single Role Description */}
+						{!exp.isMultiRole && (exp.description || exp.do) && (
+							<div class="mt-3">
+								{exp.description && (
+									<p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+										{exp.description}
+									</p>
+								)}
+								{exp.do && (
+									<ul class="mt-2 list-outside list-disc pl-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed space-y-1">
+										{exp.do.map((item: string) => (
+											<li>{item}</li>
+										))}
+									</ul>
+								)}
+							</div>
+						)}
+
+						{/* Images Showcase */}
+						{exp.images && exp.images.length > 0 && (
+							<div class="mt-4 flex flex-wrap gap-2">
+								{exp.images.map((img: string) => (
+									<img
+										src={resolveImage(img)}
+										alt="Experience showcase"
+										class="h-20 sm:h-24 w-auto rounded border border-gray-200 dark:border-gray-700 object-cover cursor-pointer hover:opacity-90 transition-opacity bg-white/5"
+									/>
+								))}
+							</div>
+						)}
+
+						{/* Skills mapping */}
+						{exp.skills && (
+							<div class="mt-3 flex gap-2 items-center text-sm font-medium text-gray-800 dark:text-gray-200">
+								<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="m22 2-7 20-4-9-9-4Z" />
+									<path d="M22 2 11 13" />
+								</svg>
+								{exp.skills}
+							</div>
+						)}
+					</div>
+				</div>
+				<hr class="border-gray-200 dark:border-gray-800 my-8 last:hidden" />
+			))
+		}
+	</div>
+</PageLayout>
