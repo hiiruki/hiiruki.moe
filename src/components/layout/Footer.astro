@@ -1,15 +1,56 @@
 ---
 import { execSync } from "node:child_process";
 
-let commitHash = "bd9bf04";
+// Default values in case git commands fail
+let commitHash = "unknown";
 let commitTimestamp = "";
+let commitMessage = "No latest commit found.";
+let commitAuthor = "Unknown";
+let commitBranch = "main";
+let commitDateDetailed = "";
+let commitTimeAgo = "";
+let totalFilesChanged = 0;
+let totalInsertions = 0;
+let totalDeletions = 0;
+let totalLines = 0;
+let changedFiles: { path: string; insertions: number; deletions: number }[] = [];
+
 try {
 	commitHash = execSync("git rev-parse --short HEAD").toString().trim();
-	commitTimestamp = execSync("git show -s --format=%cd --date=format:'%Y-%m-%d %H:%M' HEAD")
-		.toString()
-		.trim();
+	commitTimestamp = execSync("git show -s --format=%cd --date=format:'%Y-%m-%d %H:%M' HEAD").toString().trim();
+	
+	commitMessage = execSync("git log -1 --pretty=%B").toString().trim();
+	commitAuthor = execSync("git log -1 --pretty=%an").toString().trim();
+	commitBranch = import.meta.env.CF_PAGES_BRANCH || execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+	
+	// e.g. "Mar 7, 2026, 01:51 PM GMT+7"
+	commitDateDetailed = execSync("git log -1 --pretty='%cd' --date=format:'%b %e, %Y, %I:%M %p GMT+7'").toString().trim();
+	
+	// e.g. "1 week ago"
+	commitTimeAgo = execSync("git log -1 --pretty=%ar").toString().trim();
+	
+	// Get numstat without the commit message headers to calculate changed files and lines
+	const numstatRaw = execSync("git show --numstat --format=\"\" HEAD").toString().trim();
+	if (numstatRaw) {
+		const lines = numstatRaw.split('\n');
+		lines.forEach((line) => {
+			const parts = line.split('\t');
+			if (parts.length >= 3) {
+				const ins = parseInt(parts[0] as string, 10) || 0;
+				const del = parseInt(parts[1] as string, 10) || 0;
+				const file = parts[2] as string;
+				
+				totalInsertions += ins;
+				totalDeletions += del;
+				totalFilesChanged += 1;
+				totalLines += (ins + del);
+				
+				changedFiles.push({ path: file, insertions: ins, deletions: del });
+			}
+		});
+	}
 } catch (e) {
-	// Fallback to hardcoded hash if child_process fails
+	// Fallback to defaults if child_process fails
 }
 ---
 
@@ -135,24 +176,96 @@ try {
 				</div>
 			</div>
 
-			<div class="relative flex w-max flex-col">
-				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">NETWORK</span>
+			<div class="relative flex flex-col">
+				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">DATA CENTER</span>
 				<div class="relative flex flex-col space-y-1" id="network-info">
 					<span class="text-gray-800 dark:text-gray-300">Loading...</span>
 				</div>
 			</div>
 
-			<div class="flex flex-col">
+			<div class="relative flex flex-col group/version">
 				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">VERSION</span>
-				<span class="text-gray-800 dark:text-gray-300">
-					<a
-						href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="transition-colors hover:text-green-700 dark:hover:text-[#ccff00]">{commitHash}</a
-					>
-					{commitTimestamp && <span class="ml-1 text-gray-500">({commitTimestamp})</span>}
-				</span>
+				<div class="relative w-max">
+					<span class="text-gray-800 dark:text-gray-300">
+						<a
+							href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="transition-colors hover:text-green-700 dark:hover:text-[#ccff00]"
+						>{commitHash}</a>
+						{commitTimestamp && <span class="ml-1 text-gray-500">({commitTimestamp})</span>}
+					</span>
+					
+					<!-- Hover Card -->
+					<div class="absolute bottom-full mb-3 right-0 sm:left-0 sm:right-auto hidden w-[340px] sm:w-[400px] flex-col bg-white dark:bg-[#1a1a1a] shadow-2xl rounded-xl border border-gray-200 dark:border-gray-800 p-5 z-50 group-hover/version:flex">
+						<div class="flex flex-col space-y-4 text-xs cursor-default">
+							<div>
+								<h4 class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase">LATEST COMMIT</h4>
+								<p class="text-gray-600 dark:text-gray-400 mt-1">Most recent update to the repository</p>
+							</div>
+
+							<div class="bg-gray-100 dark:bg-[#252525] p-3 rounded-lg border border-gray-200 dark:border-gray-800 flex gap-3">
+								<div class="flex items-center justify-center shrink-0 w-8 h-8 rounded bg-gray-200 dark:bg-[#333333] text-blue-500 dark:text-blue-400">
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+								</div>
+								<div class="flex flex-col gap-1">
+									<span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">COMMIT MESSAGE</span>
+									<p class="text-gray-800 dark:text-gray-200 font-medium wrap-break-word leading-tight">{commitMessage}</p>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-2 gap-4">
+								<div class="flex flex-col gap-1">
+									<span class="text-gray-500">Author</span>
+									<span class="text-gray-800 dark:text-gray-200 font-medium truncate">{commitAuthor}</span>
+								</div>
+								<div class="flex flex-col gap-1">
+									<span class="text-gray-500">Branch</span>
+									<span class="text-gray-800 dark:text-gray-200 font-medium truncate">{commitBranch}</span>
+								</div>
+							</div>
+
+							<div class="flex flex-col gap-1">
+								<span class="text-gray-500 border-b border-gray-200 dark:border-gray-800 pb-1 mb-1">Committed</span>
+								<span class="text-gray-800 dark:text-gray-200 font-medium">{commitDateDetailed}</span>
+								<span class="text-gray-500">{commitTimeAgo}</span>
+							</div>
+
+							<div class="flex flex-col gap-2 bg-gray-50 dark:bg-[#1f1f1f] p-3 rounded-lg border border-gray-200 dark:border-gray-800">
+								<span class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase mt-1">CHANGES</span>
+								<div class="flex items-center gap-4 text-sm font-medium border-b border-gray-200 dark:border-gray-700 pb-3 mb-1">
+									<span class="text-green-600 dark:text-[#2abc89] flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-green-500 dark:bg-[#2abc89]"></span>+{totalInsertions}</span>
+									<span class="text-red-600 dark:text-red-500 flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-500"></span>-{totalDeletions}</span>
+									<span class="text-gray-500">{totalLines} lines</span>
+								</div>
+
+								<span class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase mt-2">FILES CHANGED ({totalFilesChanged})</span>
+								<div class="flex flex-col gap-1.5 max-h-32 overflow-y-auto pr-1">
+									{changedFiles.map((file) => (
+										<div class="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-[11px] hover:bg-white dark:hover:bg-[#2a2a2a] p-1 rounded transition-colors">
+											<span class="font-mono text-gray-600 dark:text-gray-400 truncate w-full max-w-[200px]" title={file.path}>{file.path}</span>
+											<span class="text-green-600 dark:text-[#2abc89] font-mono w-6 text-right">{file.insertions > 0 ? `+${file.insertions}` : ''}</span>
+											<span class="text-red-600 dark:text-red-500 font-mono w-6 text-right">{file.deletions > 0 ? `-${file.deletions}` : ''}</span>
+										</div>
+									))}
+								</div>
+							</div>
+							
+							<a href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`} target="_blank" rel="noopener noreferrer" class="w-full py-2.5 mt-2 rounded bg-gray-100 dark:bg-[#252525] border border-gray-200 dark:border-gray-700 text-center font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors flex justify-center items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+								View Full Changelog
+							</a>
+							
+							<div class="border-t border-gray-200 dark:border-gray-800 pt-3 mt-1">
+								<span class="font-bold text-[10px] tracking-widest text-gray-400 dark:text-gray-500 uppercase block mb-1">REPOSITORY INFORMATION</span>
+								<span class="text-[10px] text-gray-500 truncate block">
+									<a href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">{commitHash}</a> 
+									<span class="mx-1">|</span> {commitDateDetailed} <span class="mx-1">•</span> {commitTimeAgo}
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="flex flex-col">
@@ -275,7 +388,7 @@ try {
 			if (networkEl && dcInfo) {
 				networkEl.innerHTML = `
 					<button id="network-btn" class="w-full text-left text-gray-800 dark:text-gray-300 hover:text-green-700 dark:hover:text-[#ccff00] transition-colors focus:outline-none">
-						${colo}, ${dcInfo.cca2} (${dcInfo.country}) <span class="text-gray-400 dark:text-gray-600">(Data Center)</span>
+						${colo}, ${dcInfo.cca2} (${dcInfo.country})
 					</button>
 					<div id="network-card" class="absolute bottom-full mb-3 left-0 hidden w-64 bg-white dark:bg-[#1a1a1a] shadow-xl rounded-xl border border-gray-200 dark:border-gray-800 p-5 z-50">
 						<div class="flex flex-col space-y-3 text-xs">
