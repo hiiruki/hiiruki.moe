@@ -639,8 +639,8 @@ try {
 			const resourcesList = document.getElementById("uptime-resources-list");
 			if (resourcesList && json.included) {
 				const resources = json.included
-					.filter((item: any) => item.type === "status_page_resource" && item.attributes)
-					.map((item: any) => ({
+					.filter((item) => item.type === "status_page_resource" && item.attributes)
+					.map((item) => ({
 						name: item.attributes.public_name,
 						availability: (item.attributes.availability * 100).toFixed(2),
 						status: item.attributes.status,
@@ -648,7 +648,7 @@ try {
 
 				if (resources.length > 0) {
 					resourcesList.innerHTML = resources
-						.map((res: any) => {
+						.map((res) => {
 							let resColor = "text-green-500 dark:text-green-400";
 							if (res.status === "downtime" || res.status === "degraded") {
 								resColor = "text-red-500 dark:text-red-400";
