@@ -9,6 +9,7 @@ let commitAuthor = "Unknown";
 let commitBranch = "main";
 let commitDateDetailed = "";
 let commitTimeAgo = "";
+let commitUnixTimestamp = "0";
 let totalFilesChanged = 0;
 let totalInsertions = 0;
 let totalDeletions = 0;
@@ -17,34 +18,43 @@ let changedFiles: { path: string; insertions: number; deletions: number }[] = []
 
 try {
 	commitHash = execSync("git rev-parse --short HEAD").toString().trim();
-	commitTimestamp = execSync("git show -s --format=%cd --date=format:'%Y-%m-%d %H:%M' HEAD").toString().trim();
-	
+	commitTimestamp = execSync("git show -s --format=%cd --date=format:'%Y-%m-%d %H:%M' HEAD")
+		.toString()
+		.trim();
+
 	commitMessage = execSync("git log -1 --pretty=%B").toString().trim();
 	commitAuthor = execSync("git log -1 --pretty=%an").toString().trim();
-	commitBranch = import.meta.env.CF_PAGES_BRANCH || execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-	
+	commitBranch =
+		import.meta.env.CF_PAGES_BRANCH ||
+		execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+
 	// e.g. "Mar 7, 2026, 01:51 PM GMT+7"
-	commitDateDetailed = execSync("git log -1 --pretty='%cd' --date=format:'%b %e, %Y, %I:%M %p GMT+7'").toString().trim();
-	
+	commitDateDetailed = execSync(
+		"git log -1 --pretty='%cd' --date=format:'%b %e, %Y, %I:%M %p GMT+7'",
+	)
+		.toString()
+		.trim();
+
 	// e.g. "1 week ago"
 	commitTimeAgo = execSync("git log -1 --pretty=%ar").toString().trim();
-	
+	commitUnixTimestamp = execSync("git log -1 --pretty=%ct").toString().trim();
+
 	// Get numstat without the commit message headers to calculate changed files and lines
-	const numstatRaw = execSync("git show --numstat --format=\"\" HEAD").toString().trim();
+	const numstatRaw = execSync('git show --numstat --format="" HEAD').toString().trim();
 	if (numstatRaw) {
-		const lines = numstatRaw.split('\n');
+		const lines = numstatRaw.split("\n");
 		lines.forEach((line) => {
-			const parts = line.split('\t');
+			const parts = line.split("\t");
 			if (parts.length >= 3) {
 				const ins = parseInt(parts[0] as string, 10) || 0;
 				const del = parseInt(parts[1] as string, 10) || 0;
 				const file = parts[2] as string;
-				
+
 				totalInsertions += ins;
 				totalDeletions += del;
 				totalFilesChanged += 1;
-				totalLines += (ins + del);
-				
+				totalLines += ins + del;
+
 				changedFiles.push({ path: file, insertions: ins, deletions: del });
 			}
 		});
@@ -122,8 +132,9 @@ try {
 				<h3 class="font-bold tracking-widest text-green-700 dark:text-[#ccff00]">[ SERVICES ]</h3>
 				<ul class="flex flex-col space-y-2 text-gray-600 dark:text-gray-400">
 					<li>
-						<a href="#" class="uppercase transition-colors hover:text-black dark:hover:text-white"
-							>Vault</a
+						<a
+							href="https://vault.hiiruki.moe/"
+							class="uppercase transition-colors hover:text-black dark:hover:text-white">Vault</a
 						>
 					</li>
 					<li>
@@ -149,7 +160,9 @@ try {
 						</a>
 					</li>
 					<li>
-						<a href="#" class="uppercase transition-colors hover:text-black dark:hover:text-white"
+						<a
+							href="https://www.websitecarbon.com/website/hiiruki.moe/"
+							class="uppercase transition-colors hover:text-black dark:hover:text-white"
 							>Carbon footprints</a
 						>
 					</li>
@@ -169,21 +182,57 @@ try {
 		<div
 			class="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 border-t border-gray-300 pt-8 text-xs text-gray-500 sm:grid-cols-2 md:grid-cols-3 dark:border-gray-800"
 		>
-			<div class="flex flex-col">
+			<div class="group/uptime relative flex flex-col">
 				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">UPTIME</span>
-				<div class="mt-1 flex flex-col space-y-1" id="uptime-info">
-					<span class="text-gray-800 dark:text-gray-300">Loading...</span>
+				<div class="relative w-max">
+					<div class="mt-1 flex cursor-pointer flex-col space-y-1" id="uptime-info">
+						<span class="text-gray-800 dark:text-gray-300">Loading...</span>
+					</div>
+
+					<!-- Hover Card -->
+					<div
+						class="absolute bottom-full left-0 z-50 mb-3 hidden w-[250px] flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-2xl group-hover/uptime:flex sm:right-auto sm:left-auto dark:border-gray-800 dark:bg-[#1a1a1a]"
+					>
+						<div class="flex cursor-default flex-col space-y-4 text-xs">
+							<div>
+								<h4 class="font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500">
+									SYSTEM STATUS
+								</h4>
+								<p class="mt-1 text-gray-600 dark:text-gray-400">
+									Current uptime of monitored services
+								</p>
+							</div>
+
+							<div
+								class="flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-[#1f1f1f]"
+								id="uptime-resources-list"
+							>
+								<span class="text-gray-500 italic">Loading details...</span>
+							</div>
+
+							<div class="mt-1 border-t border-gray-200 pt-3 dark:border-gray-800">
+								<a
+									href="https://status.hiiruki.moe"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-blue-500 hover:underline">View full status page →</a
+								>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
 			<div class="relative flex flex-col">
-				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">DATA CENTER</span>
+				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600"
+					>DATA CENTER</span
+				>
 				<div class="relative flex flex-col space-y-1" id="network-info">
 					<span class="text-gray-800 dark:text-gray-300">Loading...</span>
 				</div>
 			</div>
 
-			<div class="relative flex flex-col group/version">
+			<div class="group/version relative flex flex-col">
 				<span class="mb-1 tracking-wider text-gray-400 uppercase dark:text-gray-600">VERSION</span>
 				<div class="relative w-max">
 					<span class="text-gray-800 dark:text-gray-300">
@@ -192,75 +241,176 @@ try {
 							target="_blank"
 							rel="noopener noreferrer"
 							class="transition-colors hover:text-green-700 dark:hover:text-[#ccff00]"
-						>{commitHash}</a>
+							>{commitHash}</a
+						>
 						{commitTimestamp && <span class="ml-1 text-gray-500">({commitTimestamp})</span>}
 					</span>
-					
+
 					<!-- Hover Card -->
-					<div class="absolute bottom-full mb-3 right-0 sm:left-0 sm:right-auto hidden w-[340px] sm:w-[400px] flex-col bg-white dark:bg-[#1a1a1a] shadow-2xl rounded-xl border border-gray-200 dark:border-gray-800 p-5 z-50 group-hover/version:flex">
-						<div class="flex flex-col space-y-4 text-xs cursor-default">
+					<div
+						class="absolute right-0 bottom-full z-50 mb-3 hidden w-[340px] flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-2xl group-hover/version:flex sm:right-auto sm:left-0 sm:w-[400px] dark:border-gray-800 dark:bg-[#1a1a1a]"
+					>
+						<div class="flex cursor-default flex-col space-y-4 text-xs">
 							<div>
-								<h4 class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase">LATEST COMMIT</h4>
-								<p class="text-gray-600 dark:text-gray-400 mt-1">Most recent update to the repository</p>
+								<h4 class="font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500">
+									LATEST COMMIT
+								</h4>
+								<p class="mt-1 text-gray-600 dark:text-gray-400">
+									Most recent update to the repository
+								</p>
 							</div>
 
-							<div class="bg-gray-100 dark:bg-[#252525] p-3 rounded-lg border border-gray-200 dark:border-gray-800 flex gap-3">
-								<div class="flex items-center justify-center shrink-0 w-8 h-8 rounded bg-gray-200 dark:bg-[#333333] text-blue-500 dark:text-blue-400">
-									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+							<div
+								class="flex gap-3 rounded-lg border border-gray-200 bg-gray-100 p-3 dark:border-gray-800 dark:bg-[#252525]"
+							>
+								<div
+									class="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-gray-200 text-blue-500 dark:bg-[#333333] dark:text-blue-400"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+										></path><polyline points="14 2 14 8 20 8"></polyline><line
+											x1="16"
+											y1="13"
+											x2="8"
+											y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline
+											points="10 9 9 9 8 9"></polyline></svg
+									>
 								</div>
 								<div class="flex flex-col gap-1">
-									<span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">COMMIT MESSAGE</span>
-									<p class="text-gray-800 dark:text-gray-200 font-medium wrap-break-word leading-tight">{commitMessage}</p>
+									<span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
+										>COMMIT MESSAGE</span
+									>
+									<p
+										class="leading-tight font-medium wrap-break-word text-gray-800 dark:text-gray-200"
+									>
+										{commitMessage}
+									</p>
 								</div>
 							</div>
 
 							<div class="grid grid-cols-2 gap-4">
 								<div class="flex flex-col gap-1">
 									<span class="text-gray-500">Author</span>
-									<span class="text-gray-800 dark:text-gray-200 font-medium truncate">{commitAuthor}</span>
+									<span class="truncate font-medium text-gray-800 dark:text-gray-200"
+										>{commitAuthor}</span
+									>
 								</div>
 								<div class="flex flex-col gap-1">
 									<span class="text-gray-500">Branch</span>
-									<span class="text-gray-800 dark:text-gray-200 font-medium truncate">{commitBranch}</span>
+									<span class="truncate font-medium text-gray-800 dark:text-gray-200"
+										>{commitBranch}</span
+									>
 								</div>
 							</div>
 
 							<div class="flex flex-col gap-1">
-								<span class="text-gray-500 border-b border-gray-200 dark:border-gray-800 pb-1 mb-1">Committed</span>
-								<span class="text-gray-800 dark:text-gray-200 font-medium">{commitDateDetailed}</span>
-								<span class="text-gray-500">{commitTimeAgo}</span>
+								<span class="mb-1 border-b border-gray-200 pb-1 text-gray-500 dark:border-gray-800"
+									>Committed</span
+								>
+								<span class="font-medium text-gray-800 dark:text-gray-200"
+									>{commitDateDetailed}</span
+								>
+								<span class="commit-time-ago text-gray-500" data-timestamp={commitUnixTimestamp}
+									>{commitTimeAgo}</span
+								>
 							</div>
 
-							<div class="flex flex-col gap-2 bg-gray-50 dark:bg-[#1f1f1f] p-3 rounded-lg border border-gray-200 dark:border-gray-800">
-								<span class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase mt-1">CHANGES</span>
-								<div class="flex items-center gap-4 text-sm font-medium border-b border-gray-200 dark:border-gray-700 pb-3 mb-1">
-									<span class="text-green-600 dark:text-[#2abc89] flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-green-500 dark:bg-[#2abc89]"></span>+{totalInsertions}</span>
-									<span class="text-red-600 dark:text-red-500 flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-500"></span>-{totalDeletions}</span>
+							<div
+								class="flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-[#1f1f1f]"
+							>
+								<span
+									class="mt-1 font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500"
+									>CHANGES</span
+								>
+								<div
+									class="mb-1 flex items-center gap-4 border-b border-gray-200 pb-3 text-sm font-medium dark:border-gray-700"
+								>
+									<span class="flex items-center gap-1 text-green-600 dark:text-[#2abc89]"
+										><span class="h-2 w-2 rounded-full bg-green-500 dark:bg-[#2abc89]"></span>+{
+											totalInsertions
+										}</span
+									>
+									<span class="flex items-center gap-1 text-red-600 dark:text-red-500"
+										><span class="h-2 w-2 rounded-full bg-red-500"></span>-{totalDeletions}</span
+									>
 									<span class="text-gray-500">{totalLines} lines</span>
 								</div>
 
-								<span class="font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase mt-2">FILES CHANGED ({totalFilesChanged})</span>
-								<div class="flex flex-col gap-1.5 max-h-32 overflow-y-auto pr-1">
-									{changedFiles.map((file) => (
-										<div class="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-[11px] hover:bg-white dark:hover:bg-[#2a2a2a] p-1 rounded transition-colors">
-											<span class="font-mono text-gray-600 dark:text-gray-400 truncate w-full max-w-[200px]" title={file.path}>{file.path}</span>
-											<span class="text-green-600 dark:text-[#2abc89] font-mono w-6 text-right">{file.insertions > 0 ? `+${file.insertions}` : ''}</span>
-											<span class="text-red-600 dark:text-red-500 font-mono w-6 text-right">{file.deletions > 0 ? `-${file.deletions}` : ''}</span>
-										</div>
-									))}
+								<span
+									class="mt-2 font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500"
+									>FILES CHANGED ({totalFilesChanged})</span
+								>
+								<div class="flex max-h-32 flex-col gap-1.5 overflow-y-auto pr-1">
+									{
+										changedFiles.map((file) => (
+											<div class="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded p-1 text-[11px] transition-colors hover:bg-white dark:hover:bg-[#2a2a2a]">
+												<span
+													class="w-full max-w-[200px] truncate font-mono text-gray-600 dark:text-gray-400"
+													title={file.path}
+												>
+													{file.path}
+												</span>
+												<span class="w-6 text-right font-mono text-green-600 dark:text-[#2abc89]">
+													{file.insertions > 0 ? `+${file.insertions}` : ""}
+												</span>
+												<span class="w-6 text-right font-mono text-red-600 dark:text-red-500">
+													{file.deletions > 0 ? `-${file.deletions}` : ""}
+												</span>
+											</div>
+										))
+									}
 								</div>
 							</div>
-							
-							<a href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`} target="_blank" rel="noopener noreferrer" class="w-full py-2.5 mt-2 rounded bg-gray-100 dark:bg-[#252525] border border-gray-200 dark:border-gray-700 text-center font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-colors flex justify-center items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+
+							<a
+								href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="mt-2 flex w-full items-center justify-center gap-2 rounded border border-gray-200 bg-gray-100 py-2.5 text-center font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:border-gray-700 dark:bg-[#252525] dark:text-gray-300 dark:hover:bg-[#333333]"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"
+									></polyline></svg
+								>
 								View Full Changelog
 							</a>
-							
-							<div class="border-t border-gray-200 dark:border-gray-800 pt-3 mt-1">
-								<span class="font-bold text-[10px] tracking-widest text-gray-400 dark:text-gray-500 uppercase block mb-1">REPOSITORY INFORMATION</span>
-								<span class="text-[10px] text-gray-500 truncate block">
-									<a href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">{commitHash}</a> 
-									<span class="mx-1">|</span> {commitDateDetailed} <span class="mx-1">•</span> {commitTimeAgo}
+
+							<div class="mt-1 border-t border-gray-200 pt-3 dark:border-gray-800">
+								<span
+									class="mb-1 block text-[10px] font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500"
+									>REPOSITORY INFORMATION</span
+								>
+								<span class="block truncate text-[10px] text-gray-500">
+									<a
+										href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-blue-500 hover:underline">{commitHash}</a
+									>
+									<span class="mx-1">|</span>
+									{commitDateDetailed}
+									<span class="mx-1">•</span>
+									<span class="commit-time-ago" data-timestamp={commitUnixTimestamp}
+										>{commitTimeAgo}</span
+									>
 								</span>
 							</div>
 						</div>
@@ -276,7 +426,7 @@ try {
 					href="https://www.websitecarbon.com/website/hiiruki.moe/"
 					class="text-gray-800 transition-colors hover:text-green-700 dark:text-gray-300 dark:hover:text-[#ccff00]"
 					target="_blank"
-					rel="noopener noreferrer">⌬ 0.02g of CO<sub>2</sub>/view</a
+					rel="noopener noreferrer">⌬ 0.01g of CO<sub>2</sub>/view</a
 				>
 			</div>
 
@@ -484,6 +634,46 @@ try {
 					"</span>" +
 					"</a>";
 			}
+
+			// Populate Hover Card with exact service uptimes
+			const resourcesList = document.getElementById("uptime-resources-list");
+			if (resourcesList && json.included) {
+				const resources = json.included
+					.filter((item: any) => item.type === "status_page_resource" && item.attributes)
+					.map((item: any) => ({
+						name: item.attributes.public_name,
+						availability: (item.attributes.availability * 100).toFixed(2),
+						status: item.attributes.status,
+					}));
+
+				if (resources.length > 0) {
+					resourcesList.innerHTML = resources
+						.map((res: any) => {
+							let resColor = "text-green-500 dark:text-green-400";
+							if (res.status === "downtime" || res.status === "degraded") {
+								resColor = "text-red-500 dark:text-red-400";
+							} else if (res.status === "maintenance") {
+								resColor = "text-yellow-500 dark:text-yellow-400";
+							}
+
+							return (
+								'<div class="flex items-center justify-between">' +
+								'<span class="text-gray-800 dark:text-gray-200 font-medium truncate pr-2">' +
+								res.name +
+								"</span>" +
+								'<span class="font-mono ' +
+								resColor +
+								'">' +
+								res.availability +
+								"%</span>" +
+								"</div>"
+							);
+						})
+						.join("");
+				} else {
+					resourcesList.innerHTML = '<span class="text-gray-500 italic">No resources found.</span>';
+				}
+			}
 		} catch (e) {
 			const uptimeEl = document.getElementById("uptime-info");
 			if (uptimeEl) {
@@ -492,4 +682,46 @@ try {
 		}
 	}
 	fetchUptime();
+
+	// 4. Update Commit Time Ago dynamically
+	function updateCommitTimeAgo() {
+		const elements = document.querySelectorAll(".commit-time-ago");
+		if (!elements.length) return;
+
+		elements.forEach((el) => {
+			const timestamp = parseInt(el.getAttribute("data-timestamp") || "0", 10);
+			if (!timestamp) return;
+
+			const diffSec = Math.floor(Date.now() / 1000) - timestamp;
+			let timeString = "";
+
+			if (diffSec < 60) {
+				timeString = "just now";
+			} else if (diffSec < 3600) {
+				const mins = Math.floor(diffSec / 60);
+				timeString = `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+			} else if (diffSec < 86400) {
+				const hours = Math.floor(diffSec / 3600);
+				timeString = `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+			} else {
+				const days = Math.floor(diffSec / 86400);
+				if (days < 7) {
+					timeString = `${days} day${days !== 1 ? "s" : ""} ago`;
+				} else if (days < 30) {
+					const weeks = Math.floor(days / 7);
+					timeString = `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+				} else if (days < 365) {
+					const months = Math.floor(days / 30);
+					timeString = `${months} month${months !== 1 ? "s" : ""} ago`;
+				} else {
+					const years = Math.floor(days / 365);
+					timeString = `${years} year${years !== 1 ? "s" : ""} ago`;
+				}
+			}
+
+			el.textContent = timeString;
+		});
+	}
+	updateCommitTimeAgo();
+	setInterval(updateCommitTimeAgo, 60000); // Update every minute
 </script>
