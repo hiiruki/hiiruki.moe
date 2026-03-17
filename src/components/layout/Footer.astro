@@ -353,7 +353,7 @@ try {
 								>
 								<div class="flex max-h-32 flex-col gap-1.5 overflow-y-auto pr-1">
 									{
-										changedFiles.map((file) => (
+										changedFiles.slice(0, 15).map((file) => (
 											<div class="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded p-1 text-[11px] transition-colors hover:bg-white dark:hover:bg-[#2a2a2a]">
 												<span
 													class="w-full max-w-[200px] truncate font-mono text-gray-600 dark:text-gray-400"
@@ -370,6 +370,11 @@ try {
 											</div>
 										))
 									}
+									{changedFiles.length > 15 && (
+										<div class="pt-1 pb-1 text-center text-[10px] italic text-gray-400 dark:text-gray-500 relative before:content-[''] before:block before:w-12 before:h-px before:bg-gray-200 before:dark:bg-gray-700 before:mx-auto before:mb-2 flex flex-col items-center">
+											...and {changedFiles.length - 15} more files hidden
+										</div>
+									)}
 								</div>
 							</div>
 
