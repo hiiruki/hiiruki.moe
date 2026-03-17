@@ -32,12 +32,33 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 		</a>
 	</div>
 
-	<!-- Recently Played Dropdown -->
-	<div class="absolute top-full left-0 sm:left-auto sm:right-auto mt-3 hidden w-[300px] flex-col bg-white dark:bg-[#1a1a1a] shadow-2xl rounded-xl border border-gray-200 dark:border-gray-800 p-4 z-50 group-hover/lastfm:flex">
-		<h4 class="font-bold text-xs tracking-widest text-gray-400 dark:text-gray-500 uppercase mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">Recently Played</h4>
-		<div id="lastfm-recent-list" class="flex flex-col space-y-1 max-h-64 overflow-y-auto pr-1">
-			<!-- Tracks will be injected here -->
-			<span class="text-xs text-gray-500 italic">Loading history...</span>
+	<!-- Hover Card (Discord style) -->
+	<div class="absolute top-full left-0 sm:left-auto sm:right-auto mt-3 hidden w-[320px] sm:w-[340px] flex-col bg-[#111214] dark:bg-[#111214] shadow-2xl rounded-xl border border-[#313338] p-4 z-50 group-hover/lastfm:flex cursor-default transition-all duration-200">
+		<h4 id="hover-status-title" class="font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase mb-1">NOT PLAYING</h4>
+		<p id="hover-status-subtitle" class="text-xs text-[#DBDEE1] mb-3">Here's the last track Firman queued up</p>
+
+		<div class="flex items-center gap-3 mb-3 relative">
+			<img id="hover-art" src="" class="h-14 w-14 rounded-md object-cover bg-[#2b2d31] shrink-0 shadow-md" />
+			<div class="flex flex-col min-w-0 justify-center">
+				<span id="hover-track" class="font-bold text-sm text-white truncate">Track</span>
+				<span id="hover-artist" class="text-xs text-[#B5BAC1] truncate mt-0.5">Artist</span>
+			</div>
+		</div>
+
+		<div class="bg-[#2b2d31] rounded-lg p-3 mb-3 border border-[#1e1f22] flex items-center">
+			<p id="hover-time" class="text-xs text-[#DBDEE1]">Last listened...</p>
+		</div>
+
+		<div class="border-t border-[#313338] pt-3 mt-1">
+			<button id="open-history-btn" class="w-full text-left font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase hover:text-white transition-colors focus:outline-none">
+				CLICK TO OPEN LISTENING HISTORY
+			</button>
+		</div>
+		
+		<div id="history-dropdown" class="hidden flex-col space-y-1 mt-3 pt-3 border-t border-[#313338] max-h-48 overflow-y-auto pr-1">
+			<div id="lastfm-recent-list" class="flex flex-col space-y-1">
+				<span class="text-xs text-[#B5BAC1] italic">Loading history...</span>
+			</div>
 		</div>
 	</div>
 </div>
@@ -133,6 +154,54 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 					link.removeAttribute("href");
 				}
 
+				// Hover Card Logic
+				const hoverTitle = document.getElementById("hover-status-title");
+				const hoverSubtitle = document.getElementById("hover-status-subtitle");
+				const hoverArt = document.getElementById("hover-art") as HTMLImageElement;
+				const hoverTrackText = document.getElementById("hover-track");
+				const hoverArtistText = document.getElementById("hover-artist");
+				const hoverTime = document.getElementById("hover-time");
+
+				if (hoverTitle && hoverSubtitle && hoverArt && hoverTrackText && hoverArtistText && hoverTime) {
+					hoverArt.src = image || "https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
+					hoverTrackText.textContent = trackData.name;
+					hoverArtistText.textContent = trackData.artist?.["#text"] || "Unknown Info";
+
+					if (isPlaying) {
+						hoverTitle.textContent = "NOW PLAYING";
+						hoverSubtitle.textContent = "Presently listening to";
+						hoverTime.textContent = "Listening right now...";
+					} else {
+						hoverTitle.textContent = "NOT PLAYING";
+						hoverSubtitle.textContent = "Here's the last track Firman queued up";
+						let dateStr = "Unknown time";
+						if (trackData.date && trackData.date.uts) {
+							const d = new Date(parseInt(trackData.date.uts) * 1000);
+							dateStr = d.toLocaleString('en-US');
+						}
+						hoverTime.textContent = `Last listened ${dateStr}`;
+					}
+				}
+
+				const toggleHistoryBtn = document.getElementById("open-history-btn");
+				const historyDropdown = document.getElementById("history-dropdown");
+				if (toggleHistoryBtn && historyDropdown) {
+					const newBtn = toggleHistoryBtn.cloneNode(true) as HTMLButtonElement;
+					toggleHistoryBtn.parentNode?.replaceChild(newBtn, toggleHistoryBtn);
+					
+					newBtn.addEventListener("click", (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						historyDropdown.classList.toggle("hidden");
+						historyDropdown.classList.toggle("flex");
+						if(historyDropdown.classList.contains("flex")) {
+							newBtn.textContent = "HIDE LISTENING HISTORY";
+						} else {
+							newBtn.textContent = "CLICK TO OPEN LISTENING HISTORY";
+						}
+					});
+				}
+
 				if (statusDot && statusText) {
 					if (isPlaying) {
 						statusDot.className = "h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse";
@@ -166,11 +235,11 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 						}
 
 						return `
-							<a href="${url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-[#252525] p-2 -mx-2 rounded-lg transition-colors group/item cursor-pointer">
-								<img src="${img}" alt="Art" class="h-10 w-10 rounded bg-black/10 dark:bg-white/10 shrink-0 object-cover shadow-sm" />
+							<a href="${url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:bg-[#2b2d31] p-2 -mx-2 rounded-lg transition-colors group/item cursor-pointer">
+								<img src="${img}" alt="Art" class="h-8 w-8 rounded shrink-0 object-cover shadow-sm bg-[#2b2d31]" />
 								<div class="flex flex-col min-w-0">
-									<span class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate group-hover/item:text-accent transition-colors">${trackName}</span>
-									<div class="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+									<span class="text-xs font-semibold text-gray-200 truncate group-hover/item:text-white transition-colors">${trackName}</span>
+									<div class="flex items-center gap-2 text-[10px] text-[#B5BAC1] mt-0.5">
 										<span class="truncate">${artistName}</span>
 										<span class="shrink-0 opacity-70">&bull; ${timeString}</span>
 									</div>
@@ -189,5 +258,9 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 		}
 	}
 
+	// Initial fetch
 	fetchLastFm();
+
+	// Poll Last.fm API every 30 seconds for real-time updates
+	setInterval(fetchLastFm, 30000);
 </script>
