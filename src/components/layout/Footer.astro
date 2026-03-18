@@ -543,9 +543,14 @@ try {
 			const networkEl = document.getElementById("network-info");
 
 			if (networkEl && dcInfo) {
+				const displayCountry = dcInfo.country || dcInfo.name;
+				const displayLocation = dcInfo.city && dcInfo.city !== displayCountry 
+					? `${dcInfo.city}, ${displayCountry}` 
+					: displayCountry;
+
 				networkEl.innerHTML = `
 					<div class="cursor-pointer text-gray-800 dark:text-gray-300 hover:text-accent transition-colors pb-1">
-						${colo}, ${dcInfo.cca2} (${dcInfo.country})
+						${colo}, ${dcInfo.cca2} (${displayCountry})
 					</div>
 					<div class="absolute bottom-full mb-3 left-0 sm:left-0 sm:right-auto flex flex-col w-[280px] sm:w-64 bg-white dark:bg-[#1a1a1a] shadow-xl rounded-xl border border-gray-200 dark:border-gray-800 p-5 z-50 opacity-0 invisible translate-y-2 transition-all duration-300 delay-200 group-hover/network:visible group-hover/network:opacity-100 group-hover/network:translate-y-0 group-hover/network:delay-0 before:absolute before:-bottom-3 before:left-0 before:h-3 before:w-full">
 						<div class="flex flex-col space-y-3 text-xs cursor-default">
@@ -555,7 +560,7 @@ try {
 							</div>
 							<div class="flex justify-between items-start gap-2">
 								<span class="text-gray-500 whitespace-nowrap">Location</span> 
-								<span class="text-gray-800 dark:text-gray-300 text-right">${dcInfo.city}, ${dcInfo.country}</span>
+								<span class="text-gray-800 dark:text-gray-300 text-right">${displayLocation}</span>
 							</div>
 							<div class="flex justify-between items-start gap-2">
 								<span class="text-gray-500 whitespace-nowrap">Region</span> 

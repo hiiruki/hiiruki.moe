@@ -14,7 +14,7 @@ By adding the optional ogImage property to the frontmatter of a post, you opt ou
 If you open this markdown file `src/content/post/social-image.md` you'll see the ogImage property set to an image which lives in the public folder[^1].
 
 ```yaml
-ogImage: "/social-card.png"
+ogImage: "/og-image.png"
 ```
 
 You can view the one set for this template page [here](https://astro-cactus.chriswilliams.dev/social-card.png).

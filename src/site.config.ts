@@ -23,7 +23,7 @@ export const siteConfig: SiteConfig = {
 	// HTML lang property, found in src/layouts/Base.astro L:18 & astro.config.ts L:48
 	lang: "en-US",
 	// Meta property, found in src/components/BaseHead.astro L:42
-	ogLocale: "en_GB",
+	ogLocale: "en_US",
 	/* 
 		- Used to construct the meta title property found in src/components/BaseHead.astro L:11 
 		- The webmanifest name found in astro.config.ts L:42
