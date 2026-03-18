@@ -71,7 +71,7 @@ try {
 		<div class="mb-16 grid grid-cols-2 gap-8 sm:grid-cols-4">
 			<!-- Contacts -->
 			<div class="flex flex-col space-y-4">
-				<h3 class="font-bold tracking-widest text-green-700 dark:text-[#ccff00]">[ CONTACTS ]</h3>
+				<h3 class="font-bold tracking-widest text-accent">[ CONTACTS ]</h3>
 				<ul class="flex flex-col space-y-2 text-gray-600 dark:text-gray-400">
 					<li>
 						<a
@@ -108,7 +108,7 @@ try {
 
 			<!-- Sitemap -->
 			<div class="flex flex-col space-y-4">
-				<h3 class="font-bold tracking-widest text-green-700 dark:text-[#ccff00]">[ SITEMAP ]</h3>
+				<h3 class="font-bold tracking-widest text-accent">[ SITEMAP ]</h3>
 				<ul class="flex flex-col space-y-2 text-gray-600 dark:text-gray-400">
 					<li>
 						<a
@@ -129,7 +129,7 @@ try {
 
 			<!-- Services -->
 			<div class="flex flex-col space-y-4">
-				<h3 class="font-bold tracking-widest text-green-700 dark:text-[#ccff00]">[ SERVICES ]</h3>
+				<h3 class="font-bold tracking-widest text-accent">[ SERVICES ]</h3>
 				<ul class="flex flex-col space-y-2 text-gray-600 dark:text-gray-400">
 					<li>
 						<a
@@ -147,7 +147,7 @@ try {
 
 			<!-- Status -->
 			<div class="flex flex-col space-y-4">
-				<h3 class="font-bold tracking-widest text-green-700 dark:text-[#ccff00]">[ STATUS ]</h3>
+				<h3 class="font-bold tracking-widest text-accent">[ STATUS ]</h3>
 				<ul class="flex flex-col space-y-2 text-gray-600 dark:text-gray-400">
 					<li>
 						<a
@@ -242,7 +242,7 @@ try {
 							href={`https://github.com/hiiruki/hiiruki.moe/commit/${commitHash}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="transition-colors hover:text-green-700 dark:hover:text-[#ccff00]"
+							class="transition-colors hover:text-accent"
 							>{commitHash}</a
 						>
 						{commitTimestamp && <span class="ml-1 text-gray-500">({commitTimestamp})</span>}
@@ -431,7 +431,7 @@ try {
 				>
 				<a
 					href="https://www.websitecarbon.com/website/hiiruki.moe/"
-					class="text-gray-800 transition-colors hover:text-green-700 dark:text-gray-300 dark:hover:text-[#ccff00]"
+					class="text-gray-800 transition-colors hover:text-accent dark:text-gray-300 dark:hover:text-accent"
 					target="_blank"
 					rel="noopener noreferrer">⌬ 0.01g of CO<sub>2</sub>/view</a
 				>
@@ -445,7 +445,7 @@ try {
 					href="https://time.is/Jakarta"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-gray-800 transition-colors hover:text-green-700 dark:text-gray-300 dark:hover:text-[#ccff00]"
+					class="text-gray-800 transition-colors hover:text-accent dark:text-gray-300 dark:hover:text-accent"
 					id="local-time">--:--:-- --</a
 				>
 			</div>
@@ -544,7 +544,7 @@ try {
 
 			if (networkEl && dcInfo) {
 				networkEl.innerHTML = `
-					<div class="cursor-pointer text-gray-800 dark:text-gray-300 hover:text-green-700 dark:hover:text-[#ccff00] transition-colors pb-1">
+					<div class="cursor-pointer text-gray-800 dark:text-gray-300 hover:text-accent transition-colors pb-1">
 						${colo}, ${dcInfo.cca2} (${dcInfo.country})
 					</div>
 					<div class="absolute bottom-full mb-3 left-0 sm:left-0 sm:right-auto flex flex-col w-[280px] sm:w-64 bg-white dark:bg-[#1a1a1a] shadow-xl rounded-xl border border-gray-200 dark:border-gray-800 p-5 z-50 opacity-0 invisible translate-y-2 transition-all duration-300 delay-200 group-hover/network:visible group-hover/network:opacity-100 group-hover/network:translate-y-0 group-hover/network:delay-0 before:absolute before:-bottom-3 before:left-0 before:h-3 before:w-full">
@@ -621,7 +621,7 @@ try {
 					dotColor +
 					'"></span>' +
 					"</span>" +
-					'<span class="text-gray-800 transition-colors group-hover:text-green-700 dark:text-gray-300 dark:group-hover:text-[#ccff00]">' +
+					'<span class="text-gray-800 transition-colors group-hover:text-accent dark:text-gray-300 dark:group-hover:text-accent">' +
 					statusText +
 					"</span>" +
 					"</a>";

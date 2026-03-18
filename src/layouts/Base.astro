@@ -50,5 +50,14 @@ const {
 				]
 			}
 		</script>
+		<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" is:inline></script>
+		<script is:inline>
+			document.addEventListener("DOMContentLoaded", () => {
+				mediumZoom(".prose img, [data-zoomable]", {
+					margin: 24,
+					background: "var(--color-global-bg)",
+				});
+			});
+		</script>
 	</body>
 </html>
