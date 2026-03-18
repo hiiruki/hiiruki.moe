@@ -3,7 +3,7 @@ const username = import.meta.env.LASTFM_USERNAME || "";
 const apiKey = import.meta.env.LASTFM_API_KEY || "";
 ---
 
-<div id="lastfm-card" class="mt-8 relative hidden items-center gap-4 group/lastfm w-max" data-username={username} data-apikey={apiKey}>
+<div id="lastfm-card" class="mt-8 relative hidden items-center gap-4 group/lastfm w-max cursor-pointer outline-none" tabindex="0" data-username={username} data-apikey={apiKey}>
 	<img
 		id="lastfm-art"
 		src=""
