@@ -8,7 +8,7 @@ import { pluginTypewriter } from "expressive-code-typewriter";
 
 export const siteConfig: SiteConfig = {
 	// Used as both a meta property (src/components/BaseHead.astro L:31 + L:49) & the generated satori png (src/pages/og-image/[slug].png.ts)
-	author: "Firman Fathoni",
+	author: "Hiiruki",
 	// Date.prototype.toLocaleDateString() parameters, found in src/utils/date.ts.
 	date: {
 		locale: "en-US",
@@ -32,7 +32,7 @@ export const siteConfig: SiteConfig = {
 	*/
 	title: "Hiiruki's lab",
 	// ! Please remember to replace the following site property with your own domain, used in astro.config.ts
-	url: "https://hiiruki.dev/",
+	url: "https://hiiruki.moe/",
 };
 
 // Used to generate links in both the Header & Footer.
@@ -42,12 +42,12 @@ export const menuLinks: { path: string; title: string }[] = [
 		title: "Home",
 	},
 	{
-		path: "/about/",
-		title: "About",
-	},
-	{
 		path: "/posts/",
 		title: "Blog",
+	},
+		{
+		path: "/about/",
+		title: "About",
 	},
 	{
 		path: "/notes/",
