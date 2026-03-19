@@ -57,6 +57,10 @@ export const menuLinks: { path: string; title: string }[] = [
 		path: "/til/",
 		title: "TIL",
 	},
+	{
+		path: "https://photos.hiiruki.moe",
+		title: "Photos",
+	},
 ];
 
 export const footerLinks: { path: string; title: string }[] = [
