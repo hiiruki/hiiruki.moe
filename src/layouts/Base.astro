@@ -50,12 +50,67 @@ const {
 				]
 			}
 		</script>
-		<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" is:inline></script>
-		<script is:inline>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js" is:inline></script>
+		<script is:inline define:vars={{ siteConfigUrl: siteConfig.url }}>
 			document.addEventListener("DOMContentLoaded", () => {
-				mediumZoom(".prose img, [data-zoomable]", {
-					margin: 24,
-					background: "var(--color-global-bg)",
+				const images = document.querySelectorAll(".prose img, [data-zoomable]");
+				images.forEach((img) => {
+					if (img.parentElement && img.parentElement.tagName === "A") return;
+					const a = document.createElement("a");
+					a.href = img.src || img.getAttribute("src");
+					a.dataset.fslightbox = "gallery";
+					img.style.cursor = "zoom-in";
+					if (img.parentNode) {
+						img.parentNode.insertBefore(a, img);
+						a.appendChild(img);
+					}
+				});
+				if (typeof refreshFsLightbox !== "undefined") refreshFsLightbox();
+
+				// Make all external links open in a new tab with complete rel attributes,
+				// while keeping subdomains as internal links based on siteConfig.url.
+				const currentHost = window.location.host;
+				const isLocal = currentHost.includes("localhost") || currentHost.includes("127.0.0.1");
+				const runningRootDomain = isLocal ? currentHost : currentHost.split('.').slice(-2).join('.');
+				
+				let configuredRootDomain = "";
+				try {
+					const configuredHost = new URL(siteConfigUrl).host;
+					configuredRootDomain = configuredHost.split('.').slice(-2).join('.');
+				} catch (e) {
+					// Fallback
+				}
+
+				document.querySelectorAll("a[href^='http']").forEach((link) => {
+					try {
+						const url = new URL(link.href);
+						const isInternal = url.host === currentHost || 
+										   (!isLocal && url.host.endsWith("." + runningRootDomain)) ||
+										   url.host === runningRootDomain ||
+										   (configuredRootDomain && url.host.endsWith("." + configuredRootDomain)) ||
+										   url.host === configuredRootDomain;
+						
+						if (!isInternal) {
+							// External link
+							link.setAttribute("target", "_blank");
+							link.setAttribute("rel", "external nofollow noopener noreferrer");
+						} else {
+							// Internal link or subdomain - KEEP target="_blank" but remove SEO blocking rels
+							link.setAttribute("target", "_blank");
+							if (link.hasAttribute("rel")) {
+								let rels = link.getAttribute("rel").split(" ");
+								// Keep noopener for security, but remove referrer blockers/nofollow
+								rels = rels.filter(r => !["external", "nofollow", "noreferrer"].includes(r));
+								if (rels.length > 0) {
+									link.setAttribute("rel", rels.join(" "));
+								} else {
+									link.removeAttribute("rel");
+								}
+							}
+						}
+					} catch (e) {
+						// Ignore invalid URLs
+					}
 				});
 			});
 		</script>
