@@ -8,7 +8,7 @@ lang: "en"
 pinned: false
 draft: false
 # coverImage:
-#   src: "./images/cover.gif"
+#   src: "./images/cover.webp"
 #   alt: "Cover image"
 ---
 
