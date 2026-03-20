@@ -16,7 +16,7 @@ export default {
 								},
 							},
 						},
-						'a[target="_blank"]::after': {
+						'a[target="_blank"]:not([data-fslightbox="gallery"])::after': {
 							content: '""',
 							display: "inline-block",
 							width: "0.8em",
