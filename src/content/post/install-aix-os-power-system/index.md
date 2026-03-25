@@ -7,9 +7,9 @@ tags: ["aix", "ibm", "unix"]
 lang: "en"
 pinned: true
 draft: false
-# coverImage:
-#   src: "./images/cover.webp"
-#   alt: "Cover image"
+coverImage:
+  src: "./images/cover.png"
+  alt: "Cover image"
 ---
 
 ## Intro
