@@ -39,6 +39,13 @@ try {
 	commitTimeAgo = execSync("git log -1 --pretty=%ar").toString().trim();
 	commitUnixTimestamp = execSync("git log -1 --pretty=%ct").toString().trim();
 
+	// Ensure we have at least 2 commits locally for accurate stats in shallow clones (like Cloudflare Pages)
+	try {
+		execSync("git fetch --depth=2", { stdio: "ignore" });
+	} catch (err) {
+		// Ignore if fetching fails
+	}
+	
 	// Get numstat without the commit message headers to calculate changed files and lines
 	const numstatRaw = execSync('git show --numstat --format="" HEAD').toString().trim();
 	if (numstatRaw) {
