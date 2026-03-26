@@ -41,7 +41,10 @@ try {
 
 	// Ensure we have at least 2 commits locally for accurate stats in shallow clones (like Cloudflare Pages)
 	try {
-		execSync("git fetch --depth=2", { stdio: "ignore" });
+		const isShallow = execSync("git rev-parse --is-shallow-repository").toString().trim() === "true";
+		if (isShallow) {
+			execSync("git fetch --depth=2", { stdio: "ignore" });
+		}
 	} catch (err) {
 		// Ignore if fetching fails
 	}
