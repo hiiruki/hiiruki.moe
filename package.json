@@ -15,7 +15,7 @@
 		"format": "prettier -w . --cache"
 	},
 	"dependencies": {
-		"@astrojs/markdown-remark": "^6.3.9",
+		"@astrojs/markdown-remark": "^7.1.0",
 		"@astrojs/mdx": "4.3.12",
 		"@astrojs/rss": "4.0.14",
 		"@astrojs/sitemap": "3.6.0",
