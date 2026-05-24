@@ -2,7 +2,7 @@
 title: "How to Install AIX OS on IBM Power System"
 description: "How to install AIX OS on IBM Power System"
 publishDate: "2025-11-16T22:38:48+07:00"
-updatedDate: "2026-03-20T14:53:48+07:00"
+updatedDate: "2026-03-29T07:27:48+07:00"
 tags: ["aix", "ibm", "unix"]
 lang: "en"
 pinned: true
@@ -25,6 +25,7 @@ It is a very stable operating system and we have never had any issues with it.
 ## Steps
 
 1. Insert AIX CD/DVD
+
 2. Press <kbd>1</kbd> to select the next step to ***“SMS Menu”***
 
 	![](./images/install_aix_1.jpeg)
@@ -55,19 +56,15 @@ It is a very stable operating system and we have never had any issues with it.
 
 9. Select ***“SATA”*** because the device used is CD/DVD
 
-	![](./images/install_aix_8.png)
-
 10. Select **_“Normal Boot”_** and wait for the reboot process to complete
-
-	![](./images/install_aix_9.png)
 
 11. Press <kbd>1</kbd> and press <kbd>Enter</kbd>
 
-	![](./images/install_aix_10.jpeg)
+	![](./images/install_aix_8.png)
 
 12. Press <kbd>2</kbd> to continue to ***“Change/Show Installation Settings and Install”***, and press <kbd>Enter</kbd>
 
-	![](./images/install_aix_11.jpeg)
+	![](./images/install_aix_9.png)
 
 13. Change ***“Select Edition”*** to ***“Enterprise”***
 
@@ -77,7 +74,154 @@ It is a very stable operating system and we have never had any issues with it.
 	
 	And make sure to press <kbd>4</kbd> to ensure the FTP/IP installation is **“yes”**
 
+	![](./images/install_aix_10.jpeg)
+
+14. Press <kbd>1</kbd> to continue to ***“Continue with Installed”***
+
+	![](./images/install_aix_11.jpeg)
+
 	![](./images/install_aix_12.jpeg)
+
+15. After the installation is complete, it will enter the AIX OS. Next, enter the initial server setting process
+
+	![](./images/install_aix_13.png)
+
+16. Click ***“Accept”*** on the following screen
+
+	![](./images/install_aix_14.jpeg)
+
+17. Click ***“Next”*** on the following screen
+
+	![](./images/install_aix_15.jpeg)
+
+18. Click ***“Next”*** on the following screen
+
+	![](./images/install_aix_16.jpeg)
+
+19. Set the date, time, and time zone to **+7 (THAIST)**. Then click ***“Next”***
+
+	![](./images/install_aix_17.jpeg)
+
+20. Set the desired password, and click ***“Next”***
+
+	![](./images/install_aix_18.jpeg)
+
+21. Select ***“Manually configure TCP/IP”***, and click ***“Next”***
+
+	![](./images/install_aix_19.jpeg)
+
+22. Fill in the ***“Host name”*** and ***“IP Address	”***, and click ***“Next”***
+
+	![](./images/install_aix_20.png)
+
+23. Select ***“Network Interface (en0 01-00 Standart Ethernet Network Interface)”***, and click ***“Next”***
+
+	![](./images/install_aix_21.jpeg)
+
+24. Skip the following section, and click ***“Next”***
+
+	![](./images/install_aix_22.jpeg)
+
+25. Click ***“Next”*** on the following screen
+
+	![](./images/install_aix_23.png)
+
+	![](./images/install_aix_24.png)
+
+	![](./images/install_aix_25.jpeg)
+
+26. Select ***“Finish now, and do not start Configuration Assistant when restarting the operating system”***, and click ***“Finish”***
+
+	![](./images/install_aix_26.jpeg)
+
+27. After the process is complete, remove the AIX CD/DVD and turn off the server first
+
+28. Turn on the server again, open the terminal again
+
+	Or it can also be done remotely using the server's IP Address via the xmanager application on a laptop/PC. To perform disk settings, open putty on a laptop/PC using the server's IP Address and user root
+
+29. Run the `topas` command <br>
+	Check the default size of paging space 512 M, change the **Number of Additional logical partitions** to **100** using the `smitty chps` command
+
+30. First check the existing disks using the `df -g` command
+
+31. Change the GB blocks of mounted `/`, `/usr`, `/var` and `/tmp` to **5**, `/home` to **100** and `/opt` to **20**, using the `chfs -a size=+(value to add)G (mounted name)` command
+
+	:::note
+	- If the value is positive (+), it will increase the GB blocks<br>
+	- If the value is negative (-), it will decrease the GB blocks
+	:::
+
+	Example :<br>
+	`chfs -a size=+25G /data`<br>
+	`chfs -a size=-25G /logpath`
+
+	Or<br>
+
+	`chfs -a size=+4G /var`
+
+	GB Blocks of `/var` is 1.00, to make it 5.00 requires an additional 4.00 GB
+
+	![](./images/install_aix_27.jpeg)
+
+32. Perform Security Limits Settings,
+using the `vi /etc/security/limits` command
+
+33. Update the default value of limits to the following value:
+
+	![](./images/install_aix_28.jpeg)
+
+34. To delete, press <kbd>esc</kbd> then press <kbd>x</kbd><br>
+To type, press <kbd>esc</kbd> then press <kbd>i</kbd><br>
+To delete a line, press <kbd>esc</kbd> then press <kbd>dd</kbd><br>
+To save, press <kbd>esc</kbd> then press <kbd>:wq!</kbd><br>
+To exit without saving, press <kbd>esc</kbd> then press <kbd>:q!</kbd>
+
+35. Use the `smitty` command, then select ***“System Environment”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_29.png)
+
+36. Select ***“Change / Show Characteristics of Operating System”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_30.jpeg)
+
+37. Change ***“Maximum number of PROCESSES allowed per user”*** to ***“4096”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_31.jpeg)
+
+38. Select ***“Change / Show Date and Time”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_32.png)
+
+39. Select ***“Change Time Zone Using User Inputted Values”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_33.png)
+
+40. Leave the ***“Day Light Saving Time ID”*** field empty and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_34.png)
+
+41. Use the `smitty device` command, then select ***“I/O Completion Ports”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_35.png)
+
+42. Select ***“Change / Show Characteristics of I/O Completion Ports”***
+Change ***“STATE to be configured at system restart”*** to ***“Available”*** and press <kbd>Enter</kbd>
+
+	![](./images/install_aix_36.png)
+
+	Ensure that ***“Configure Defined I/O Completion Ports”*** is also set to ***“Available”***
+
+	![](./images/install_aix_37.png)
+
+43. Restart server using the `shutdown -Fr now` command
+
+44. Congratulations! The AIX OS installation process is complete.
+
+
+
+
+
 
 ## References
 
