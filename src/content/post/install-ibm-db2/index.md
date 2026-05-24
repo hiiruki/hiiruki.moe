@@ -319,3 +319,7 @@ coverImage:
     :::
 
 ## References
+
+- [Db2 installation methods](https://www.ibm.com/docs/en/db2/11.5.x?topic=servers-db2-installation-methods)
+- [IBM Db2 @ Wikipedia](https://en.wikipedia.org/wiki/IBM_Db2 "IBM DB2 @ Wikipedia")
+- [IBM Db2 @ IBM](https://www.ibm.com/products/db2-database "IBM Db2 @ IBM")
