@@ -2,8 +2,8 @@
 [session]: ID: 055b210e9f97217abf1872ed98af29640d9f5194847352975a6e9a3ea301683602
 [xmpp]: hiiruki@0x1.re
 [irc]: hiiruki @  Libera.Chat
-[email]: hi@hiiruki.dev
-[pgp]: https://hiiruki.dev/pgp.txt
+[email]: hi@hiiruki.moe
+[pgp]: https://hiiruki.moe/pgp.txt
 
 -----BEGIN PGP MESSAGE-----
 

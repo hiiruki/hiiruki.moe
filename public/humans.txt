@@ -6,13 +6,13 @@
 ██╔══██║██║██║██╔══██╗██║   ██║██╔═██╗ ██║
 ██║  ██║██║██║██║  ██║╚██████╔╝██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝
-            https://hiiruki.dev
+            https://hiiruki.moe
 
 /* TEAM */
 
 Hiiruki
-- Site    : https://hiiruki.dev/ | https://hiiruki.com/
-- Contact : https://hiiruki.dev/about
+- Site    : https://hiiruki.moe/ | https://hiiruki.com/
+- Contact : https://hiiruki.moe/about
 - GitHub  : https://github.com/hiiruki
 
 /* SITE */
