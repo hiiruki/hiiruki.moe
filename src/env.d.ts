@@ -35,8 +35,10 @@ declare module "satori" {
 }
 
 declare module "satori-html" {
+	export function html(htmlStr: string): any;
 	export function html(strings: TemplateStringsArray, ...values: any[]): any;
 }
+
 
 declare module "node:fs" {
 	export function readFileSync(path: string, encoding: "utf-8"): string;
