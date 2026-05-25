@@ -16,19 +16,34 @@ const {
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
 	month: "long",
 };
+
+// Render credit markdown to HTML and replace " on " with " / "
+let renderedCredit = "";
+if (data.coverImage?.credit) {
+	const processed = data.coverImage.credit.replace(/\s+on\s+/i, " / ");
+	renderedCredit = processed.replace(
+		/\[([^\]]+)\]\(([^)]+)\)/g,
+		'<a href="$2" class="cactus-link" target="_blank" rel="noopener noreferrer">$1</a>'
+	);
+}
 ---
 
 {
 	data.coverImage && (
-		<div class="mb-6 aspect-video">
-			<Image
-				alt={data.coverImage.alt}
-				layout="constrained"
-				width={748}
-				height={420}
-				priority
-				src={data.coverImage.src}
-			/>
+		<div class="mb-6">
+			<div class="aspect-video">
+				<Image
+					alt={data.coverImage.alt}
+					layout="constrained"
+					width={748}
+					height={420}
+					priority
+					src={data.coverImage.src}
+				/>
+			</div>
+			{data.coverImage.credit && (
+				<p class="mt-3 text-center text-xs text-gray-500 dark:text-gray-400" set:html={renderedCredit} />
+			)}
 		</div>
 	)
 }
