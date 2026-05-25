@@ -2,8 +2,8 @@
 title: "How to Install IBM Db2"
 description: "How to install IBM Db2"
 publishDate: "2026-03-29T18:21:48+07:00"
-updatedDate: ""
-tags: ["db2", "aix", "ibm"]
+updatedDate: "2026-05-25T12:00:00+07:00"
+tags: ["db2", "aix", "ibm", "database"]
 lang: "en"
 pinned: true
 draft: false

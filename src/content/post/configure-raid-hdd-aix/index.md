@@ -2,7 +2,7 @@
 title: "How to Configure RAID HDD on IBM Power System for AIX OS"
 description: "How to configure RAID HDD on IBM Power System for AIX OS"
 publishDate: "2025-11-15T20:06:28+07:00"
-updatedDate: "2026-03-21T00:18:36+07:00"
+updatedDate: "2026-04-24T09:22:00+07:00"
 tags: ["aix", "ibm", "unix", "raid", "storage"]
 lang: "en"
 pinned: true

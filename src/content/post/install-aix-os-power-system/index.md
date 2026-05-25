@@ -2,7 +2,7 @@
 title: "How to Install AIX OS on IBM Power System"
 description: "How to install AIX OS on IBM Power System"
 publishDate: "2025-11-16T22:38:48+07:00"
-updatedDate: "2026-03-29T07:27:48+07:00"
+updatedDate: "2026-04-26T06:24:00+07:00"
 tags: ["aix", "ibm", "unix"]
 lang: "en"
 pinned: true
