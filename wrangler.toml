@@ -1,9 +1,9 @@
 name = "hiiruki-moe"
 compatibility_date = "2026-03-10"
+compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
 [dev]
 port = 8788
 upstream_protocol = "http"
 local_protocol = "http"
-host = "[IP_ADDRESS]"
