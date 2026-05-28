@@ -10,15 +10,15 @@
 /humans           /humans.txt
 
 # ¯\_(ツ)_/¯
-/admin            http://aka.ms/confidential
-/administrator    http://aka.ms/confidential
-/login            http://aka.ms/confidential
-/cpanel           http://aka.ms/confidential
-/secret           http://aka.ms/confidential
-/webadmin         http://aka.ms/confidential
-/adminarea        http://aka.ms/confidential
-/cp               http://aka.ms/confidential
-/controlpanel     http://aka.ms/confidential
+/admin            https://aka.ms/confidential
+/administrator    https://aka.ms/confidential
+/login            https://aka.ms/confidential
+/cpanel           https://aka.ms/confidential
+/secret           https://aka.ms/confidential
+/webadmin         https://aka.ms/confidential
+/adminarea        https://aka.ms/confidential
+/cp               https://aka.ms/confidential
+/controlpanel     https://aka.ms/confidential
 
 # Contact
 /contact          /contact.txt
