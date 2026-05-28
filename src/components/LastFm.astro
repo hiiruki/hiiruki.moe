@@ -1,9 +1,15 @@
 ---
 const username = import.meta.env.LASTFM_USERNAME || "";
 const apiKey = import.meta.env.LASTFM_API_KEY || "";
+const enabled = !!(username && apiKey);
 ---
 
-<div id="lastfm-card" class="mt-8 relative hidden items-center gap-4 group/lastfm w-max cursor-pointer outline-none" tabindex="0" data-username={username} data-apikey={apiKey}>
+<div
+	id="lastfm-card"
+	class="group/lastfm relative mt-8 hidden w-max cursor-pointer items-center gap-4 outline-none"
+	tabindex="0"
+	data-enabled={enabled ? "true" : "false"}
+>
 	<img
 		id="lastfm-art"
 		src=""
@@ -15,7 +21,7 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 			<div id="lastfm-status-dot" class="h-1.5 w-1.5 rounded-full bg-amber-500"></div>
 			<span
 				id="lastfm-status"
-				class="text-[10px] font-bold tracking-widest text-amber-500 uppercase font-mono"
+				class="font-mono text-[10px] font-bold tracking-widest text-amber-500 uppercase"
 				>PAUSED</span
 			>
 		</div>
@@ -24,35 +30,54 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 			href="#"
 			target="_blank"
 			rel="noopener noreferrer"
-			class="text-sm font-mono opacity-80 hover:opacity-100 hover:text-accent transition-colors truncate max-w-[200px] sm:max-w-[300px]"
+			class="hover:text-accent max-w-[200px] truncate font-mono text-sm opacity-80 transition-colors hover:opacity-100 sm:max-w-[300px]"
 		>
-			<span id="lastfm-track" class="truncate">Track</span> - <span id="lastfm-artist" class="truncate">Artist</span>
+			<span id="lastfm-track" class="truncate">Track</span> - <span
+				id="lastfm-artist"
+				class="truncate">Artist</span
+			>
 		</a>
 	</div>
 
-	<!-- Hover Card (Discord style) -->
-	<div class="absolute top-full left-0 sm:left-auto sm:right-auto mt-3 flex w-[280px] sm:w-[340px] flex-col bg-[#111214] dark:bg-[#111214] shadow-2xl rounded-xl border border-[#313338] p-4 z-50 cursor-default opacity-0 invisible translate-y-2 transition-all duration-300 delay-200 group-hover/lastfm:visible group-hover/lastfm:opacity-100 group-hover/lastfm:translate-y-0 group-hover/lastfm:delay-0 before:absolute before:-top-3 before:left-0 before:h-3 before:w-full">
-		<h4 id="hover-status-title" class="font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase mb-3">NOT PLAYING</h4>
+	<div
+		class="invisible absolute top-full left-0 z-50 mt-3 flex w-[280px] translate-y-2 cursor-default flex-col rounded-xl border border-[#313338] bg-[#111214] p-4 opacity-0 shadow-2xl transition-all delay-200 duration-300 group-hover/lastfm:visible group-hover/lastfm:translate-y-0 group-hover/lastfm:opacity-100 group-hover/lastfm:delay-0 before:absolute before:-top-3 before:left-0 before:h-3 before:w-full sm:right-auto sm:left-auto sm:w-[340px] dark:bg-[#111214]"
+	>
+		<h4
+			id="hover-status-title"
+			class="mb-3 text-[10px] font-bold tracking-widest text-[#B5BAC1] uppercase"
+		>
+			NOT PLAYING
+		</h4>
 
-		<div class="flex items-center gap-3 mb-3 relative">
-			<img id="hover-art" src="" class="h-14 w-14 rounded-md object-cover bg-[#2b2d31] shrink-0 shadow-md" />
-			<div class="flex flex-col min-w-0 justify-center">
-				<span id="hover-track" class="font-bold text-sm text-white truncate">Track</span>
-				<span id="hover-artist" class="text-xs text-[#B5BAC1] truncate mt-0.5">Artist</span>
+		<div class="relative mb-3 flex items-center gap-3">
+			<img
+				id="hover-art"
+				src=""
+				class="h-14 w-14 shrink-0 rounded-md bg-[#2b2d31] object-cover shadow-md"
+			/>
+			<div class="flex min-w-0 flex-col justify-center">
+				<span id="hover-track" class="truncate text-sm font-bold text-white">Track</span>
+				<span id="hover-artist" class="mt-0.5 truncate text-xs text-[#B5BAC1]">Artist</span>
 			</div>
 		</div>
 
-		<div class="bg-[#2b2d31] rounded-lg p-3 mb-3 border border-[#1e1f22] flex items-center">
+		<div class="mb-3 flex items-center rounded-lg border border-[#1e1f22] bg-[#2b2d31] p-3">
 			<p id="hover-time" class="text-xs text-[#DBDEE1]">Last listened...</p>
 		</div>
 
-		<div class="border-t border-[#313338] pt-3 mt-1">
-			<button id="open-history-btn" class="w-full text-left font-bold text-[10px] tracking-widest text-[#B5BAC1] uppercase hover:text-white transition-colors focus:outline-none">
+		<div class="mt-1 border-t border-[#313338] pt-3">
+			<button
+				id="open-history-btn"
+				class="w-full text-left text-[10px] font-bold tracking-widest text-[#B5BAC1] uppercase transition-colors hover:text-white focus:outline-none"
+			>
 				CLICK TO OPEN LISTENING HISTORY
 			</button>
 		</div>
-		
-		<div id="history-dropdown" class="hidden flex-col space-y-1 mt-3 pt-3 border-t border-[#313338] max-h-48 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+
+		<div
+			id="history-dropdown"
+			class="mt-3 hidden max-h-48 flex-col space-y-1 overflow-y-auto border-t border-[#313338] pt-3 pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+		>
 			<div id="lastfm-recent-list" class="flex flex-col space-y-1">
 				<span class="text-xs text-[#B5BAC1] italic">Loading history...</span>
 			</div>
@@ -77,17 +102,14 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 			const skeleton = document.getElementById("lastfm-skeleton");
 			const card = document.getElementById("lastfm-card");
 
-			const username = card?.dataset.username;
-			const apiKey = card?.dataset.apikey;
+			const enabled = card?.dataset.enabled === "true";
 
-			if (!username || !apiKey) {
+			if (!enabled) {
 				if (skeleton) skeleton.classList.add("hidden");
 				return;
 			}
 
-			const res = await fetch(
-				`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=6`
-			);
+			const res = await fetch("/api/lastfm");
 
 			if (!res.ok) {
 				if (skeleton) skeleton.classList.add("hidden");
@@ -144,7 +166,7 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 						"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
 				if (track) track.textContent = trackData.name;
 				if (artist) artist.textContent = trackData.artist?.["#text"] || "Unknown Info";
-				
+
 				if (link && trackData.url) {
 					link.href = trackData.url;
 				} else if (link) {
@@ -159,19 +181,21 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 				const hoverTime = document.getElementById("hover-time");
 
 				if (hoverTitle && hoverArt && hoverTrackText && hoverArtistText && hoverTime) {
-					hoverArt.src = image || "https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
+					hoverArt.src =
+						image ||
+						"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
 					hoverTrackText.textContent = trackData.name;
 					hoverArtistText.textContent = trackData.artist?.["#text"] || "Unknown Info";
 
 					let dateStr = "Unknown time";
 					if (isPlaying) {
 						hoverTitle.textContent = "NOW PLAYING";
-						dateStr = new Date().toLocaleString('en-US');
+						dateStr = new Date().toLocaleString("en-US");
 					} else {
 						hoverTitle.textContent = "NOT PLAYING";
 						if (trackData.date && trackData.date.uts) {
 							const d = new Date(parseInt(trackData.date.uts) * 1000);
-							dateStr = d.toLocaleString('en-US');
+							dateStr = d.toLocaleString("en-US");
 						}
 					}
 					hoverTime.textContent = `Last listened ${dateStr}`;
@@ -182,13 +206,13 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 				if (toggleHistoryBtn && historyDropdown) {
 					const newBtn = toggleHistoryBtn.cloneNode(true) as HTMLButtonElement;
 					toggleHistoryBtn.parentNode?.replaceChild(newBtn, toggleHistoryBtn);
-					
+
 					newBtn.addEventListener("click", (e) => {
 						e.preventDefault();
 						e.stopPropagation();
 						historyDropdown.classList.toggle("hidden");
 						historyDropdown.classList.toggle("flex");
-						if(historyDropdown.classList.contains("flex")) {
+						if (historyDropdown.classList.contains("flex")) {
 							newBtn.textContent = "HIDE LISTENING HISTORY";
 						} else {
 							newBtn.textContent = "CLICK TO OPEN LISTENING HISTORY";
@@ -200,11 +224,13 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 					if (isPlaying) {
 						statusDot.className = "h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse";
 						statusText.textContent = "PLAYING";
-						statusText.className = "text-[10px] font-bold tracking-widest text-green-500 uppercase font-mono";
+						statusText.className =
+							"text-[10px] font-bold tracking-widest text-green-500 uppercase font-mono";
 					} else {
 						statusDot.className = "h-1.5 w-1.5 rounded-full bg-amber-500";
 						statusText.textContent = "PAUSED";
-						statusText.className = "text-[10px] font-bold tracking-widest text-amber-500 uppercase font-mono";
+						statusText.className =
+							"text-[10px] font-bold tracking-widest text-amber-500 uppercase font-mono";
 					}
 				}
 
@@ -213,22 +239,25 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 				if (recentList && tracks.length > 1) {
 					// Exclude the currently playing/paused track which is at index 0
 					const historyTracks = tracks.slice(1, 6);
-					recentList.innerHTML = historyTracks.map((t: any) => {
-						const img = t.image?.find((i: any) => i.size === "medium")?.["#text"] || "https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
-						const url = t.url || "#";
-						const trackName = t.name;
-						const artistName = t.artist?.["#text"] || "Unknown";
-						
-						let timeString = "Unknown";
-						if (t.date && t.date.uts) {
-							const diffSec = Math.floor(Date.now() / 1000) - parseInt(t.date.uts);
-							if (diffSec < 60) timeString = "Just now";
-							else if (diffSec < 3600) timeString = `${Math.floor(diffSec/60)}m ago`;
-							else if (diffSec < 86400) timeString = `${Math.floor(diffSec/3600)}h ago`;
-							else timeString = `${Math.floor(diffSec/86400)}d ago`;
-						}
+					recentList.innerHTML = historyTracks
+						.map((t: any) => {
+							const img =
+								t.image?.find((i: any) => i.size === "medium")?.["#text"] ||
+								"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
+							const url = t.url || "#";
+							const trackName = t.name;
+							const artistName = t.artist?.["#text"] || "Unknown";
 
-						return `
+							let timeString = "Unknown";
+							if (t.date && t.date.uts) {
+								const diffSec = Math.floor(Date.now() / 1000) - parseInt(t.date.uts);
+								if (diffSec < 60) timeString = "Just now";
+								else if (diffSec < 3600) timeString = `${Math.floor(diffSec / 60)}m ago`;
+								else if (diffSec < 86400) timeString = `${Math.floor(diffSec / 3600)}h ago`;
+								else timeString = `${Math.floor(diffSec / 86400)}d ago`;
+							}
+
+							return `
 							<a href="${url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:bg-[#2b2d31] p-2 -mx-2 rounded-lg transition-colors group/item cursor-pointer">
 								<img src="${img}" alt="Art" class="h-8 w-8 rounded shrink-0 object-cover shadow-sm bg-[#2b2d31]" />
 								<div class="flex flex-col min-w-0">
@@ -240,7 +269,8 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 								</div>
 							</a>
 						`;
-					}).join("");
+						})
+						.join("");
 				}
 			} else if (skeleton) {
 				skeleton.classList.add("hidden");
@@ -252,9 +282,7 @@ const apiKey = import.meta.env.LASTFM_API_KEY || "";
 		}
 	}
 
-	// Initial fetch
 	fetchLastFm();
 
-	// Poll Last.fm API every 30 seconds for real-time updates
 	setInterval(fetchLastFm, 30000);
 </script>
