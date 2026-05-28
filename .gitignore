@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 # AI-generated content
 .agent
+
+# Cloudflare Stuff
+.wrangler/
