@@ -7,6 +7,7 @@ import RobotoMono from "@/assets/roboto-mono-regular.ttf";
 import { getAllPosts } from "@/data/post";
 import { siteConfig } from "@/site.config";
 import { getFormattedDate } from "@/utils/date";
+import { getGitUpdatedDate } from "@/utils/git-updated-date";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -78,7 +79,7 @@ export async function getStaticPaths() {
 		.map((post) => ({
 			params: { slug: post.id },
 			props: {
-				pubDate: post.data.updatedDate ?? post.data.publishDate,
+				pubDate: post.data.updatedDate ?? getGitUpdatedDate(post.id) ?? post.data.publishDate,
 				title: post.data.title,
 			},
 		}));

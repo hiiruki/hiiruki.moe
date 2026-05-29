@@ -4,6 +4,7 @@ import { type CollectionEntry, render } from "astro:content";
 import Masthead from "@/components/blog/Masthead.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
+import { getGitUpdatedDate } from "@/utils/git-updated-date";
 
 import BaseLayout from "./Base.astro";
 
@@ -13,8 +14,10 @@ interface Props {
 
 const { post } = Astro.props;
 const { ogImage, title, description, updatedDate, publishDate } = post.data;
+const gitUpdatedDate = getGitUpdatedDate(post.id);
+const effectiveUpdatedDate = updatedDate ?? gitUpdatedDate;
 const socialImage = ogImage ?? `/og-image/${post.id}.png`;
-const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString();
+const articleDate = effectiveUpdatedDate?.toISOString() ?? publishDate.toISOString();
 const { headings, remarkPluginFrontmatter } = await render(post);
 const readingTime: string = remarkPluginFrontmatter.readingTime;
 ---
@@ -29,7 +32,7 @@ const readingTime: string = remarkPluginFrontmatter.readingTime;
 	wideLayout={!!headings.length}
 >
 	<article class="grow wrap-break-word" data-pagefind-body>
-		<div id="blog-hero" class="mb-8"><Masthead content={post} readingTime={readingTime} /></div>
+		<div id="blog-hero" class="mb-8"><Masthead content={post} readingTime={readingTime} updatedDate={effectiveUpdatedDate} /></div>
 		<div class="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
 			{!!headings.length && <TOC headings={headings} />}
 			<div

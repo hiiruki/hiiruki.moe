@@ -6,11 +6,13 @@ import FormattedDate from "@/components/FormattedDate.astro";
 interface Props {
 	content: CollectionEntry<"post">;
 	readingTime: string;
+	updatedDate?: Date;
 }
 
 const {
 	content: { data },
 	readingTime,
+	updatedDate,
 } = Astro.props;
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
@@ -38,10 +40,10 @@ if (data.coverImage?.credit) {
 		{readingTime}
 	</p>
 	{
-		data.updatedDate && (
+		updatedDate && (
 			<span class="bg-quote/5 text-quote rounded-lg px-2 py-1">
 				Updated:
-				<FormattedDate class="ms-1" date={data.updatedDate} dateTimeOptions={dateTimeOptions} />
+				<FormattedDate class="ms-1" date={updatedDate} dateTimeOptions={dateTimeOptions} />
 			</span>
 		)
 	}
