@@ -12,7 +12,9 @@ const {
 
 <li class="toc-li">
 	<a
-		class={`block py-1.5 text-sm transition-colors hover:text-accent line-clamp-2 wrap-break-word ${depth <= 2 ? "opacity-100 font-medium" : "opacity-80 hover:opacity-100"}`}
+		class={`toc-link block py-1.5 text-sm transition-colors hover:text-accent line-clamp-2 wrap-break-word ${depth <= 2 ? "opacity-100 font-medium" : "opacity-80 hover:opacity-100"}`}
+		data-toc-link
+		data-toc-slug={slug}
 		href={`#${slug}`}>{text}</a
 	>
 	{

@@ -12,7 +12,7 @@ const { headings } = Astro.props;
 const toc = generateToc(headings);
 ---
 
-<details open class="lg:sticky lg:top-12 lg:order-2 lg:basis-60 lg:shrink-0 w-full">
+<details open class="lg:sticky lg:top-12 lg:order-2 lg:basis-60 lg:shrink-0 lg:self-start w-full">
 	<summary class="title hover:marker:text-accent cursor-pointer text-lg">Table of Contents</summary>
 	<nav class="ms-2 mt-4 lg:w-full">
 		<ol>
@@ -37,15 +37,58 @@ const toc = generateToc(headings);
 	.toc-li:last-child::before {
 		@apply bottom-auto h-[16px];
 	}
-	/* Hover effects for tree lines */
-	.toc-li:has(> a:hover)::before {
+	/* Hover and scroll-spy effects for tree lines */
+	.toc-li:has(> a:hover)::before,
+	.toc-li[data-active="true"]::before {
 		border-color: var(--color-accent);
 		box-shadow: -1px 0 0 currentColor;
 		color: var(--color-accent);
 	}
-	.toc-li:has(> a:hover)::after {
+	.toc-li:has(> a:hover)::after,
+	.toc-li[data-active="true"]::after {
 		border-color: var(--color-accent);
 		box-shadow: 0 1px 0 currentColor;
 		color: var(--color-accent);
 	}
+	.toc-link[data-active="true"] {
+		color: var(--color-accent);
+		opacity: 1;
+	}
 </style>
+
+<script>
+	const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-toc-link]"));
+	const headings = tocLinks
+		.map((link) => {
+			const slug = link.dataset.tocSlug;
+			return slug ? document.getElementById(slug) : null;
+		})
+		.filter((heading): heading is HTMLElement => heading !== null);
+
+	function setActiveToc(slug: string) {
+		tocLinks.forEach((link) => {
+			const isActive = link.dataset.tocSlug === slug;
+			link.dataset.active = isActive.toString();
+			link.parentElement?.setAttribute("data-active", isActive.toString());
+		});
+	}
+
+	function updateActiveToc() {
+		const offset = 120;
+		let activeHeading = headings[0];
+
+		for (const heading of headings) {
+			if (heading.getBoundingClientRect().top <= offset) {
+				activeHeading = heading;
+			} else {
+				break;
+			}
+		}
+
+		if (activeHeading?.id) setActiveToc(activeHeading.id);
+	}
+
+	updateActiveToc();
+	window.addEventListener("scroll", updateActiveToc, { passive: true });
+	window.addEventListener("resize", updateActiveToc);
+</script>
