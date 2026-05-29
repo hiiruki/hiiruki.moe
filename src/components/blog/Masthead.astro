@@ -81,12 +81,13 @@ if (data.coverImage?.credit) {
 {
 	data.coverImage && (
 		<div class="mt-6">
-			<div class="aspect-video">
+			<div class="sm:h-80 md:h-[400px] w-full overflow-hidden rounded-xl shadow-sm">
 				<Image
 					alt={data.coverImage.alt}
 					layout="constrained"
-					width={748}
-					height={420}
+					width={1024}
+					height={400}
+					class="h-full w-full object-cover"
 					priority
 					src={data.coverImage.src}
 				/>
