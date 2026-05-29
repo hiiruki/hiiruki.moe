@@ -9,6 +9,8 @@ const enabled = !!(username && apiKey);
 	class="group/lastfm relative mt-8 hidden w-max cursor-pointer items-center gap-4 outline-none"
 	tabindex="0"
 	data-enabled={enabled ? "true" : "false"}
+	data-username={username}
+	data-apikey={apiKey}
 >
 	<img
 		id="lastfm-art"
@@ -109,7 +111,18 @@ const enabled = !!(username && apiKey);
 				return;
 			}
 
-			const res = await fetch("/api/lastfm");
+			let res = await fetch("/api/lastfm").catch(() => null);
+
+			// Fallback: call Last.fm API directly if proxy is unavailable (e.g. local dev)
+			if (!res || !res.ok) {
+				const lfmUser = card?.dataset.username || "";
+				const lfmKey = card?.dataset.apikey || "";
+				if (lfmUser && lfmKey) {
+					res = await fetch(
+						`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lfmUser}&api_key=${lfmKey}&format=json&limit=6`,
+					).catch(() => null);
+				}
+			}
 
 			if (!res.ok) {
 				if (skeleton) skeleton.classList.add("hidden");
