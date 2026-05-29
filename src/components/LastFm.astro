@@ -9,8 +9,6 @@ const enabled = !!(username && apiKey);
 	class="group/lastfm relative mt-8 hidden w-max cursor-pointer items-center gap-4 outline-none"
 	tabindex="0"
 	data-enabled={enabled ? "true" : "false"}
-	data-username={username}
-	data-apikey={apiKey}
 >
 	<img
 		id="lastfm-art"
@@ -98,53 +96,104 @@ const enabled = !!(username && apiKey);
 	</div>
 </div>
 
-<script>
+<script is:inline>
+	function formatTimeAgo(uts) {
+		if (!uts) return "Unknown";
+		var diffSec = Math.floor(Date.now() / 1000) - parseInt(uts);
+		if (diffSec < 60) return "Just now";
+		if (diffSec < 3600) return Math.floor(diffSec / 60) + "m ago";
+		if (diffSec < 86400) return Math.floor(diffSec / 3600) + "h ago";
+		return Math.floor(diffSec / 86400) + "d ago";
+	}
+
+	function getTrackImage(track, size) {
+		if (!track || !track.image) return "";
+		var match = track.image.find(function(img) { return img.size === size; });
+		return (match && match["#text"]) || (track.image[track.image.length - 1] && track.image[track.image.length - 1]["#text"]) || "";
+	}
+
+	function buildHistoryItem(t) {
+		var img = getTrackImage(t, "medium");
+		var url = t.url || "#";
+		var trackName = t.name || "Unknown";
+		var artistName = (t.artist && t.artist["#text"]) || "Unknown";
+		var timeString = formatTimeAgo(t.date && t.date.uts);
+
+		var a = document.createElement("a");
+		a.href = url;
+		a.target = "_blank";
+		a.rel = "noopener noreferrer";
+		a.className = "flex items-center gap-3 hover:bg-[#2b2d31] p-2 -mx-2 rounded-lg transition-colors group/item cursor-pointer";
+
+		var imgEl = document.createElement("img");
+		imgEl.src = img;
+		imgEl.alt = "Art";
+		imgEl.className = "h-8 w-8 rounded shrink-0 object-cover shadow-sm bg-[#2b2d31]";
+		a.appendChild(imgEl);
+
+		var textCol = document.createElement("div");
+		textCol.className = "flex flex-col min-w-0";
+
+		var nameSpan = document.createElement("span");
+		nameSpan.className = "text-xs font-semibold text-gray-200 truncate group-hover/item:text-white transition-colors";
+		nameSpan.textContent = trackName;
+		textCol.appendChild(nameSpan);
+
+		var metaDiv = document.createElement("div");
+		metaDiv.className = "flex items-center gap-2 text-[10px] text-[#B5BAC1] mt-0.5";
+
+		var artistSpan = document.createElement("span");
+		artistSpan.className = "truncate";
+		artistSpan.textContent = artistName;
+		metaDiv.appendChild(artistSpan);
+
+		var bulletSpan = document.createElement("span");
+		bulletSpan.className = "shrink-0 opacity-70";
+		bulletSpan.textContent = "\u2022 " + timeString;
+		metaDiv.appendChild(bulletSpan);
+
+		textCol.appendChild(metaDiv);
+		a.appendChild(textCol);
+
+		return a;
+	}
+
 	async function fetchLastFm() {
 		try {
-			const skeleton = document.getElementById("lastfm-skeleton");
-			const card = document.getElementById("lastfm-card");
+			var skeleton = document.getElementById("lastfm-skeleton");
+			var card = document.getElementById("lastfm-card");
 
-			const enabled = card?.dataset.enabled === "true";
+			var enabled = card && card.dataset && card.dataset.enabled === "true";
 
 			if (!enabled) {
 				if (skeleton) skeleton.classList.add("hidden");
 				return;
 			}
 
-			let res = await fetch("/api/lastfm").catch(() => null);
+			var res = await fetch("/api/lastfm").catch(function() { return null; });
 
-			// Fallback: call Last.fm API directly if proxy is unavailable (e.g. local dev)
 			if (!res || !res.ok) {
-				const lfmUser = card?.dataset.username || "";
-				const lfmKey = card?.dataset.apikey || "";
-				if (lfmUser && lfmKey) {
-					res = await fetch(
-						`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lfmUser}&api_key=${lfmKey}&format=json&limit=6`,
-					).catch(() => null);
-				}
-			}
-
-			if (!res.ok) {
 				if (skeleton) skeleton.classList.add("hidden");
 				return;
 			}
 
-			const data = await res.json();
-			const tracks = data.recenttracks?.track;
+			var data = await res.json();
+			var tracks = data.recenttracks && data.recenttracks.track;
 
 			if (skeleton && card && tracks && tracks.length > 0) {
-				let trackData = tracks[0];
-				const isPlaying = trackData["@attr"]?.nowplaying === "true";
+				var trackData = tracks[0];
+				var isPlaying = trackData["@attr"] && trackData["@attr"].nowplaying === "true";
 
 				if (isPlaying) {
 					trackData.cachedAt = Date.now();
-					localStorage.setItem("lastfm-nowplaying", JSON.stringify(trackData));
+					try { localStorage.setItem("lastfm-nowplaying", JSON.stringify(trackData)); } catch(e) {}
 				} else {
-					const cached = localStorage.getItem("lastfm-nowplaying");
+					var cached = null;
+					try { cached = localStorage.getItem("lastfm-nowplaying"); } catch(e) {}
 					if (cached) {
 						try {
-							const cachedTrack = JSON.parse(cached);
-							const lastScrobbleTime = parseInt(trackData.date?.uts || "0") * 1000;
+							var cachedTrack = JSON.parse(cached);
+							var lastScrobbleTime = parseInt((trackData.date && trackData.date.uts) || "0") * 1000;
 							if (
 								cachedTrack.cachedAt &&
 								cachedTrack.cachedAt > lastScrobbleTime &&
@@ -153,7 +202,7 @@ const enabled = !!(username && apiKey);
 								trackData = cachedTrack;
 							}
 						} catch (e) {
-							console.error("Error parsing cached Last.fm data", e);
+							// Silently ignore corrupt cache
 						}
 					}
 				}
@@ -162,23 +211,18 @@ const enabled = !!(username && apiKey);
 				card.classList.remove("hidden");
 				card.classList.add("flex");
 
-				const image =
-					trackData.image?.find((img: any) => img.size === "extralarge")?.["#text"] ||
-					trackData.image?.[trackData.image.length - 1]?.["#text"];
+				var image = getTrackImage(trackData, "extralarge");
 
-				const art = document.getElementById("lastfm-art") as HTMLImageElement;
-				const statusDot = document.getElementById("lastfm-status-dot");
-				const statusText = document.getElementById("lastfm-status");
-				const track = document.getElementById("lastfm-track");
-				const artist = document.getElementById("lastfm-artist");
-				const link = document.getElementById("lastfm-link") as HTMLAnchorElement;
+				var art = document.getElementById("lastfm-art");
+				var statusDot = document.getElementById("lastfm-status-dot");
+				var statusText = document.getElementById("lastfm-status");
+				var track = document.getElementById("lastfm-track");
+				var artist = document.getElementById("lastfm-artist");
+				var link = document.getElementById("lastfm-link");
 
-				if (art)
-					art.src =
-						image ||
-						"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
+				if (art) art.src = image;
 				if (track) track.textContent = trackData.name;
-				if (artist) artist.textContent = trackData.artist?.["#text"] || "Unknown Info";
+				if (artist) artist.textContent = (trackData.artist && trackData.artist["#text"]) || "Unknown Info";
 
 				if (link && trackData.url) {
 					link.href = trackData.url;
@@ -187,40 +231,38 @@ const enabled = !!(username && apiKey);
 				}
 
 				// Hover Card Logic
-				const hoverTitle = document.getElementById("hover-status-title");
-				const hoverArt = document.getElementById("hover-art") as HTMLImageElement;
-				const hoverTrackText = document.getElementById("hover-track");
-				const hoverArtistText = document.getElementById("hover-artist");
-				const hoverTime = document.getElementById("hover-time");
+				var hoverTitle = document.getElementById("hover-status-title");
+				var hoverArt = document.getElementById("hover-art");
+				var hoverTrackText = document.getElementById("hover-track");
+				var hoverArtistText = document.getElementById("hover-artist");
+				var hoverTime = document.getElementById("hover-time");
 
 				if (hoverTitle && hoverArt && hoverTrackText && hoverArtistText && hoverTime) {
-					hoverArt.src =
-						image ||
-						"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
+					hoverArt.src = image;
 					hoverTrackText.textContent = trackData.name;
-					hoverArtistText.textContent = trackData.artist?.["#text"] || "Unknown Info";
+					hoverArtistText.textContent = (trackData.artist && trackData.artist["#text"]) || "Unknown Info";
 
-					let dateStr = "Unknown time";
+					var dateStr = "Unknown time";
 					if (isPlaying) {
 						hoverTitle.textContent = "NOW PLAYING";
 						dateStr = new Date().toLocaleString("en-US");
 					} else {
 						hoverTitle.textContent = "NOT PLAYING";
 						if (trackData.date && trackData.date.uts) {
-							const d = new Date(parseInt(trackData.date.uts) * 1000);
+							var d = new Date(parseInt(trackData.date.uts) * 1000);
 							dateStr = d.toLocaleString("en-US");
 						}
 					}
-					hoverTime.textContent = `Last listened ${dateStr}`;
+					hoverTime.textContent = "Last listened " + dateStr;
 				}
 
-				const toggleHistoryBtn = document.getElementById("open-history-btn");
-				const historyDropdown = document.getElementById("history-dropdown");
+				var toggleHistoryBtn = document.getElementById("open-history-btn");
+				var historyDropdown = document.getElementById("history-dropdown");
 				if (toggleHistoryBtn && historyDropdown) {
-					const newBtn = toggleHistoryBtn.cloneNode(true) as HTMLButtonElement;
-					toggleHistoryBtn.parentNode?.replaceChild(newBtn, toggleHistoryBtn);
+					var newBtn = toggleHistoryBtn.cloneNode(true);
+					toggleHistoryBtn.parentNode && toggleHistoryBtn.parentNode.replaceChild(newBtn, toggleHistoryBtn);
 
-					newBtn.addEventListener("click", (e) => {
+					newBtn.addEventListener("click", function(e) {
 						e.preventDefault();
 						e.stopPropagation();
 						historyDropdown.classList.toggle("hidden");
@@ -237,60 +279,28 @@ const enabled = !!(username && apiKey);
 					if (isPlaying) {
 						statusDot.className = "h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse";
 						statusText.textContent = "PLAYING";
-						statusText.className =
-							"text-[10px] font-bold tracking-widest text-green-500 uppercase font-mono";
+						statusText.className = "text-[10px] font-bold tracking-widest text-green-500 uppercase font-mono";
 					} else {
 						statusDot.className = "h-1.5 w-1.5 rounded-full bg-amber-500";
 						statusText.textContent = "PAUSED";
-						statusText.className =
-							"text-[10px] font-bold tracking-widest text-amber-500 uppercase font-mono";
+						statusText.className = "text-[10px] font-bold tracking-widest text-amber-500 uppercase font-mono";
 					}
 				}
 
-				// Populate recently played list
-				const recentList = document.getElementById("lastfm-recent-list");
+				// Populate recently played list using safe DOM APIs (no innerHTML)
+				var recentList = document.getElementById("lastfm-recent-list");
 				if (recentList && tracks.length > 1) {
-					// Exclude the currently playing/paused track which is at index 0
-					const historyTracks = tracks.slice(1, 6);
-					recentList.innerHTML = historyTracks
-						.map((t: any) => {
-							const img =
-								t.image?.find((i: any) => i.size === "medium")?.["#text"] ||
-								"https://lastfm.freetls.fastly.net/i/u/64s/4128a6eb29f94943c9d206c08e625904.webp";
-							const url = t.url || "#";
-							const trackName = t.name;
-							const artistName = t.artist?.["#text"] || "Unknown";
-
-							let timeString = "Unknown";
-							if (t.date && t.date.uts) {
-								const diffSec = Math.floor(Date.now() / 1000) - parseInt(t.date.uts);
-								if (diffSec < 60) timeString = "Just now";
-								else if (diffSec < 3600) timeString = `${Math.floor(diffSec / 60)}m ago`;
-								else if (diffSec < 86400) timeString = `${Math.floor(diffSec / 3600)}h ago`;
-								else timeString = `${Math.floor(diffSec / 86400)}d ago`;
-							}
-
-							return `
-							<a href="${url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:bg-[#2b2d31] p-2 -mx-2 rounded-lg transition-colors group/item cursor-pointer">
-								<img src="${img}" alt="Art" class="h-8 w-8 rounded shrink-0 object-cover shadow-sm bg-[#2b2d31]" />
-								<div class="flex flex-col min-w-0">
-									<span class="text-xs font-semibold text-gray-200 truncate group-hover/item:text-white transition-colors">${trackName}</span>
-									<div class="flex items-center gap-2 text-[10px] text-[#B5BAC1] mt-0.5">
-										<span class="truncate">${artistName}</span>
-										<span class="shrink-0 opacity-70">&bull; ${timeString}</span>
-									</div>
-								</div>
-							</a>
-						`;
-						})
-						.join("");
+					recentList.replaceChildren();
+					var historyTracks = tracks.slice(1, 6);
+					for (var i = 0; i < historyTracks.length; i++) {
+						recentList.appendChild(buildHistoryItem(historyTracks[i]));
+					}
 				}
 			} else if (skeleton) {
 				skeleton.classList.add("hidden");
 			}
 		} catch (e) {
-			console.error("Error fetching Last.fm info", e);
-			const skeleton = document.getElementById("lastfm-skeleton");
+			var skeleton = document.getElementById("lastfm-skeleton");
 			if (skeleton) skeleton.classList.add("hidden");
 		}
 	}
