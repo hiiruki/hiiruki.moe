@@ -81,21 +81,23 @@ import { siteConfig } from "../../site.config";
 	</mobile-button>
 </header>
 
-<script>
-	import { toggleClass } from "@/utils/domElement";
+<script is:inline>
+	// toggleClass utility inlined (avoids separate domElement import)
+	function toggleClass(element, className) { element.classList.toggle(className); }
 
 	class MobileNavBtn extends HTMLElement {
-		#menuOpen: boolean = false;
-
 		connectedCallback() {
-			const headerEl = document.getElementById("main-header")!;
-			const mobileButtonEl = this.querySelector<HTMLButtonElement>("button");
+			var menuOpen = false;
+			var headerEl = document.getElementById("main-header");
+			var mobileButtonEl = this.querySelector("button");
 
-			mobileButtonEl?.addEventListener("click", () => {
-				if (headerEl) toggleClass(headerEl, "menu-open");
-				this.#menuOpen = !this.#menuOpen;
-				mobileButtonEl.setAttribute("aria-expanded", this.#menuOpen.toString());
-			});
+			if (mobileButtonEl) {
+				mobileButtonEl.addEventListener("click", function() {
+					if (headerEl) toggleClass(headerEl, "menu-open");
+					menuOpen = !menuOpen;
+					mobileButtonEl.setAttribute("aria-expanded", menuOpen.toString());
+				});
+			}
 		}
 	}
 

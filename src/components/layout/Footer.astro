@@ -532,35 +532,19 @@ try {
 	updateTime();
 	setInterval(updateTime, 1000);
 
-	// 2. Fetch Network Trace & DC Metadata
+	// 2. Fetch Network Trace & DC Metadata immediately on page load
 	async function fetchNetworkInfo() {
+		const networkEl = document.getElementById("network-info");
+		if (networkEl) {
+			networkEl.innerHTML = '<span class="text-gray-500 italic">Connecting...</span>';
+		}
+
 		try {
-			const [traceRes, dcRes] = await Promise.all([
-				fetch("/cdn-cgi/trace"),
-				fetch("/DC-Colos.json"),
-			]);
+			const res = await fetch("/api/network-info");
+			if (!res.ok) throw new Error("Network response was not ok");
 
-			if (!traceRes.ok || !dcRes.ok) throw new Error("Network response was not ok");
-
-			const text = await traceRes.text();
-			const dcColos = await dcRes.json();
-			const lines = text.split("\n");
-
-			let ip = "Unknown";
-			let colo = "Unknown";
-
-			lines.forEach((line) => {
-				const parts = line.split("=");
-				if (parts.length >= 2) {
-					const key = parts[0] ? parts[0].trim() : "";
-					const value = parts[1] ? parts[1].trim() : "";
-					if (key === "ip") ip = value;
-					if (key === "colo") colo = value;
-				}
-			});
-
-			const dcInfo = dcColos[colo];
-			const networkEl = document.getElementById("network-info");
+			const data = await res.json();
+			const { ip, colo, dcInfo } = data;
 
 			if (networkEl && dcInfo) {
 				const displayCountry = dcInfo.country || dcInfo.name;
@@ -602,7 +586,6 @@ try {
 			}
 		} catch (error) {
 			console.error("Failed to fetch network info", error);
-			const networkEl = document.getElementById("network-info");
 			if (networkEl) {
 				networkEl.innerHTML = '<span class="text-gray-800 dark:text-gray-300">Unavailable</span>';
 			}
@@ -610,8 +593,13 @@ try {
 	}
 	fetchNetworkInfo();
 
-	// 3. Fetch Uptime
+	// 3. Fetch Uptime immediately on page load
 	async function fetchUptime() {
+		const uptimeEl = document.getElementById("uptime-info");
+		if (uptimeEl) {
+			uptimeEl.innerHTML = '<span class="text-gray-500 italic">Checking status...</span>';
+		}
+
 		try {
 			const res = await fetch("https://status.hiiruki.moe/index.json");
 			const json = await res.json();
@@ -634,7 +622,6 @@ try {
 				statusText = "System maintenance";
 			}
 
-			const uptimeEl = document.getElementById("uptime-info");
 			if (uptimeEl) {
 				uptimeEl.innerHTML =
 					'<a href="https://status.hiiruki.moe/" target="_blank" rel="noopener noreferrer" class="group flex items-center space-x-2">' +
@@ -692,7 +679,7 @@ try {
 				}
 			}
 		} catch (e) {
-			const uptimeEl = document.getElementById("uptime-info");
+			console.error("Failed to fetch uptime", e);
 			if (uptimeEl) {
 				uptimeEl.innerHTML = '<span class="text-gray-800 dark:text-gray-300">Unavailable</span>';
 			}

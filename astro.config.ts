@@ -95,6 +95,21 @@ export default defineConfig({
 			exclude: ["@resvg/resvg-js"],
 		},
 		plugins: [tailwind(), rawFonts([".ttf", ".woff"])],
+		build: {
+			rollupOptions: {
+				output: {
+					manualChunks(id) {
+						if (id.includes(".astro") && id.includes("type=script")) {
+							return "site-scripts";
+						}
+						if (id.includes("src/utils/domElement")) {
+							return "site-scripts";
+						}
+						return undefined;
+					},
+				},
+			},
+		},
 	},
 	env: {
 		schema: {

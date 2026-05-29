@@ -56,106 +56,90 @@ import "@/styles/blocks/search.css";
 	</dialog>
 </site-search>
 
-<script>
+<script is:inline type="module">
 	class SiteSearch extends HTMLElement {
-		#closeBtn: HTMLButtonElement | null;
-		#dialog: HTMLDialogElement | null;
-		#dialogFrame: HTMLDivElement | null;
-		#openBtn: HTMLButtonElement | null;
-		#controller: AbortController;
-
 		constructor() {
 			super();
-			this.#openBtn = this.querySelector<HTMLButtonElement>("button[data-open-modal]");
-			this.#closeBtn = this.querySelector<HTMLButtonElement>("button[data-close-modal]");
-			this.#dialog = this.querySelector<HTMLDialogElement>("dialog");
-			this.#dialogFrame = this.querySelector(".dialog-frame");
-			this.#controller = new AbortController();
+			this.closeBtn = this.querySelector("button[data-close-modal]");
+			this.dialog = this.querySelector("dialog");
+			this.dialogFrame = this.querySelector(".dialog-frame");
+			this.openBtn = this.querySelector("button[data-open-modal]");
+			this.controller = new AbortController();
 
-			// Set up events
-			if (this.#openBtn) {
-				this.#openBtn.addEventListener("click", this.openModal);
-				this.#openBtn.disabled = false;
-			} else {
-				console.warn("Search button not found");
+			if (this.openBtn) {
+				this.openBtn.addEventListener("click", this.openModal.bind(this));
+				this.openBtn.disabled = false;
 			}
 
-			if (this.#closeBtn) {
-				this.#closeBtn.addEventListener("click", this.closeModal);
-			} else {
-				console.warn("Close button not found");
+			if (this.closeBtn) {
+				this.closeBtn.addEventListener("click", this.closeModal.bind(this));
 			}
 
-			if (this.#dialog) {
-				this.#dialog.addEventListener("close", () => {
-					window.removeEventListener("click", this.onWindowClick);
+			if (this.dialog) {
+				this.dialog.addEventListener("close", () => {
+					window.removeEventListener("click", this.onWindowClickBound);
 				});
-			} else {
-				console.warn("Dialog not found");
 			}
 
-			// only add pagefind in production
-			if (import.meta.env.DEV) return;
-			const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+			var searchRoot = this.querySelector("#cactus__search");
+			if (!searchRoot) return;
+
+			var onIdle = window.requestIdleCallback || function(cb) { return setTimeout(cb, 1); };
 			onIdle(async () => {
-				const { PagefindUI } = await import("@pagefind/default-ui");
-				new PagefindUI({
-					baseUrl: import.meta.env.BASE_URL,
-					bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
-					element: "#cactus__search",
-					showImages: false,
-					showSubResults: true,
-				});
+				try {
+					var base = document.querySelector('base')?.getAttribute('href') || import.meta.env?.BASE_URL || "/";
+					var cleanBase = base.replace(/\/$/, "");
+					var module = await import(cleanBase + "/pagefind/pagefind-ui.js");
+					new module.PagefindUI({
+						baseUrl: base,
+						bundlePath: cleanBase + "/pagefind/",
+						element: "#cactus__search",
+						showImages: false,
+						showSubResults: true,
+					});
+				} catch (error) {
+					// Search stays unavailable if Pagefind assets are absent.
+				}
 			});
 		}
 
 		connectedCallback() {
-			// window events, requires cleanup
-			window.addEventListener("keydown", this.onWindowKeydown, { signal: this.#controller.signal });
+			this.onWindowKeydownBound = this.onWindowKeydown.bind(this);
+			this.onWindowClickBound = this.onWindowClick.bind(this);
+			window.addEventListener("keydown", this.onWindowKeydownBound, { signal: this.controller.signal });
 		}
 
 		disconnectedCallback() {
-			this.#controller.abort();
+			this.controller.abort();
 		}
 
-		openModal = (event?: MouseEvent) => {
-			if (!this.#dialog) {
-				console.warn("Dialog not found");
-				return;
-			}
-
-			this.#dialog.showModal();
+		openModal(event) {
+			if (!this.dialog) return;
+			this.dialog.showModal();
 			this.querySelector("input")?.focus();
-			event?.stopPropagation();
-			window.addEventListener("click", this.onWindowClick, { signal: this.#controller.signal });
-		};
+			if (event) event.stopPropagation();
+			window.addEventListener("click", this.onWindowClickBound, { signal: this.controller.signal });
+		}
 
-		closeModal = () => this.#dialog?.close();
+		closeModal() {
+			if (this.dialog) this.dialog.close();
+		}
 
-		onWindowClick = (event: MouseEvent) => {
-			// check if it's a link
-			const isLink = "href" in (event.target || {});
-			// make sure the click is either a link or outside of the dialog
-			if (
-				isLink ||
-				(document.body.contains(event.target as Node) &&
-					!this.#dialogFrame?.contains(event.target as Node))
-			) {
+		onWindowClick(event) {
+			var target = event.target;
+			var isLink = target && "href" in target;
+			if (isLink || (document.body.contains(target) && this.dialogFrame && !this.dialogFrame.contains(target))) {
 				this.closeModal();
 			}
-		};
+		}
 
-		onWindowKeydown = (e: KeyboardEvent) => {
-			if (!this.#dialog) {
-				console.warn("Dialog not found");
-				return;
-			}
-			// check if it's the Control+K or ⌘+K shortcut
+		onWindowKeydown(e) {
+			if (!this.dialog) return;
 			if ((e.metaKey === true || e.ctrlKey === true) && e.key === "k") {
-				this.#dialog.open ? this.closeModal() : this.openModal();
+				this.dialog.open ? this.closeModal() : this.openModal();
 				e.preventDefault();
 			}
-		};
+		}
 	}
 
 	customElements.define("site-search", SiteSearch);

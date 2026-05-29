@@ -32,42 +32,11 @@ const {
 			<slot />
 		</main>
 		<Footer />
-		<script is:inline type="speculationrules">
-			{
-				"prefetch": [
-					{
-						"where": {
-							"href_matches": "/*"
-						},
-						"eagerness": "immediate"
-					}
-				],
-				"prerender": [
-					{
-						"where": {
-							"href_matches": "/*"
-						},
-						"eagerness": "moderate"
-					}
-				]
-			}
-		</script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js" is:inline></script>
-		<script is:inline define:vars={{ siteConfigUrl: siteConfig.url }}>
+		<meta name="site-config-url" content={siteConfig.url} />
+		<script is:inline>
 			document.addEventListener("DOMContentLoaded", () => {
-				const images = document.querySelectorAll(".prose img, [data-zoomable]");
-				images.forEach((img) => {
-					if (img.parentElement && img.parentElement.tagName === "A") return;
-					const a = document.createElement("a");
-					a.href = img.src || img.getAttribute("src");
-					a.dataset.fslightbox = "gallery";
-					img.style.cursor = "zoom-in";
-					if (img.parentNode) {
-						img.parentNode.insertBefore(a, img);
-						a.appendChild(img);
-					}
-				});
-				if (typeof refreshFsLightbox !== "undefined") refreshFsLightbox();
+				// Read site config from meta tag instead of define:vars (avoids astro_type_script_index)
+				const siteConfigUrl = document.querySelector('meta[name="site-config-url"]')?.getAttribute("content") || "";
 
 				// Make all external links open in a new tab with complete rel attributes,
 				// while keeping subdomains as internal links based on siteConfig.url.
