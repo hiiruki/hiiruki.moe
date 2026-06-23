@@ -41,15 +41,41 @@ function stripFrontmatterAndNormalize(content: string): string {
 	return body.replace(/\s+/g, " ").trim();
 }
 
+function getParentPath(commitHash: string, relativePath: string): string {
+	try {
+		const output = execFileSync(
+			"git",
+			["log", "-1", "--name-status", "--follow", commitHash, "--", relativePath],
+			{
+				cwd: process.cwd(),
+				encoding: "utf-8",
+				timeout: 5000,
+			},
+		).trim();
+
+		const lines = output.split("\n");
+		for (const line of lines) {
+			const parts = line.split(/\s+/);
+			if (parts[0]?.startsWith("R") && parts.length >= 3) {
+				return parts[1]; // The old path in the parent commit
+			}
+		}
+		return relativePath;
+	} catch {
+		return relativePath;
+	}
+}
+
 function isMeaningfulUpdate(commitHash: string, relativePath: string): boolean {
 	try {
+		const parentPath = getParentPath(commitHash, relativePath);
 		const contentCurrent = execFileSync("git", ["show", `${commitHash}:${relativePath}`], {
 			cwd: process.cwd(),
 			encoding: "utf-8",
 			timeout: 5000,
 		});
 
-		const contentParent = execFileSync("git", ["show", `${commitHash}^:${relativePath}`], {
+		const contentParent = execFileSync("git", ["show", `${commitHash}^:${parentPath}`], {
 			cwd: process.cwd(),
 			encoding: "utf-8",
 			timeout: 5000,
@@ -71,7 +97,15 @@ export function getGitUpdatedDate(postId: string) {
 
 	try {
 		let relativePath = path.join("src", "content", "post", postId);
-		if (!fs.existsSync(relativePath)) {
+		if (fs.existsSync(relativePath)) {
+			if (fs.statSync(relativePath).isDirectory()) {
+				if (fs.existsSync(path.join(relativePath, "index.md"))) {
+					relativePath = path.join(relativePath, "index.md");
+				} else if (fs.existsSync(path.join(relativePath, "index.mdx"))) {
+					relativePath = path.join(relativePath, "index.mdx");
+				}
+			}
+		} else {
 			if (fs.existsSync(relativePath + ".md")) {
 				relativePath += ".md";
 			} else if (fs.existsSync(relativePath + ".mdx")) {
@@ -79,10 +113,14 @@ export function getGitUpdatedDate(postId: string) {
 			} else if (relativePath.endsWith("/index")) {
 				const folderPath = relativePath.slice(0, -6);
 				if (fs.existsSync(folderPath)) {
-					if (fs.existsSync(path.join(folderPath, "index.md"))) {
-						relativePath = path.join(folderPath, "index.md");
-					} else if (fs.existsSync(path.join(folderPath, "index.mdx"))) {
-						relativePath = path.join(folderPath, "index.mdx");
+					if (fs.statSync(folderPath).isDirectory()) {
+						if (fs.existsSync(path.join(folderPath, "index.md"))) {
+							relativePath = path.join(folderPath, "index.md");
+						} else if (fs.existsSync(path.join(folderPath, "index.mdx"))) {
+							relativePath = path.join(folderPath, "index.mdx");
+						} else {
+							relativePath = folderPath;
+						}
 					} else {
 						relativePath = folderPath;
 					}
