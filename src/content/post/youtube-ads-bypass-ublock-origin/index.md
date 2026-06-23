@@ -12,11 +12,11 @@ coverImage:
   alt: "Cover Image"
 ---
 
-# Intro
+## Intro
 
 This tricks will fix the YouTube "Ad blockers violate YouTube's Terms of Service" warning on [Brave](https://brave.com/) browser and by using the [uBlock Origin](https://ublockorigin.com/) extension
 
-# Configure the uBlock Origin extension
+### Configure the uBlock Origin extension
 
 1. Remove all existing adblock extensions on your browser.
 2. Download the uBlock Origin extension for [Chrome](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/).
@@ -47,7 +47,7 @@ www.youtube.com##+js(set, yt.config_.EXPERIMENT_FLAGS.ab_pl_man, false)
 
 7. Click on “Apply changes”, try refreshing the page and watch some YouTube videos.
 
-# Reference
+## Reference
 
 - https://www.reddit.com/r/Adblock/comments/1l45afe/fuckers_are_at_it_again/
 - https://www.reddit.com/r/Adblock/comments/1l21d8m/heres_a_working_youtube_adblocker_for_when_ublock/
