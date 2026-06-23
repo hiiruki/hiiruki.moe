@@ -89,8 +89,8 @@ import "@/styles/blocks/search.css";
 				try {
 					var base = document.querySelector('base')?.getAttribute('href') || import.meta.env?.BASE_URL || "/";
 					var cleanBase = base.replace(/\/$/, "");
-					var module = await import(cleanBase + "/pagefind/pagefind-ui.js");
-					new module.PagefindUI({
+					await import(cleanBase + "/pagefind/pagefind-ui.js");
+					new window.PagefindUI({
 						baseUrl: base,
 						bundlePath: cleanBase + "/pagefind/",
 						element: "#cactus__search",
