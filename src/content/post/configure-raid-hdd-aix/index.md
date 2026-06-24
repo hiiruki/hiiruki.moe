@@ -5,7 +5,7 @@ publishDate: "2025-11-15T20:06:28+07:00"
 updatedDate: "2026-05-24T09:22:00+07:00"
 tags: ["aix", "ibm", "unix", "raid", "storage"]
 lang: "en"
-pinned: true
+pinned: false
 draft: false
 coverImage:
   src: "./images/cover.png"
