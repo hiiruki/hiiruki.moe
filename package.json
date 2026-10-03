@@ -6,7 +6,9 @@
   "scripts": {
     "postinstall": "npm rebuild sharp --force",
     "dev": "astro dev",
+    "dev:cf": "astro build && npx wrangler pages dev dist --ip 0.0.0.0 --port 8799",
     "start": "astro dev",
+    "prebuild": "rm -rf dist .astro/data-store.json",
     "build": "astro build",
     "postbuild": "pagefind --site dist",
     "preview": "astro preview",

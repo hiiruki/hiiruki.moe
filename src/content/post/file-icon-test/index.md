@@ -2,10 +2,10 @@
 title: "File Icon Test"
 description: "Testing file icons in code blocks"
 publishDate: "2026-03-02T12:00:00+07:00"
-updatedDate: "2026-03-02T12:00:00+07:00"
+updatedDate: ""
 tags: ["test", "markdown"]
 lang: "id"
-pinned: true
+pinned: false
 draft: false
 # coverImage:
 #   src: "./images/cover.webp"

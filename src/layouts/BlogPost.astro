@@ -2,8 +2,12 @@
 import { type CollectionEntry, render } from "astro:content";
 
 import Masthead from "@/components/blog/Masthead.astro";
+import PostNav from "@/components/blog/PostNav.astro";
+import RelatedPosts from "@/components/blog/RelatedPosts.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
+import { getAdjacentPosts, getRelatedPosts } from "@/data/post";
+import { siteConfig } from "@/site.config";
 import { getGitUpdatedDate } from "@/utils/git-updated-date";
 
 import BaseLayout from "./Base.astro";
@@ -20,6 +24,34 @@ const socialImage = ogImage ?? `/og-image/${post.id}.png`;
 const articleDate = effectiveUpdatedDate?.toISOString() ?? publishDate.toISOString();
 const { headings, remarkPluginFrontmatter } = await render(post);
 const readingTime: string = remarkPluginFrontmatter.readingTime;
+const { newer, older } = await getAdjacentPosts(post.id);
+const relatedPosts = await getRelatedPosts(post);
+
+const canonicalURL = new URL(`/posts/${post.id}/`, siteConfig.url).href;
+const ogImageURL = new URL(socialImage, siteConfig.url).href;
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "BlogPosting",
+	headline: title,
+	description,
+	image: ogImageURL,
+	datePublished: publishDate.toISOString(),
+	dateModified: articleDate,
+	author: {
+		"@type": "Person",
+		name: siteConfig.author,
+		url: siteConfig.url,
+	},
+	publisher: {
+		"@type": "Person",
+		name: siteConfig.author,
+	},
+	mainEntityOfPage: {
+		"@type": "WebPage",
+		"@id": canonicalURL,
+	},
+	keywords: post.data.tags.join(", "),
+};
 ---
 
 <BaseLayout
@@ -31,6 +63,11 @@ const readingTime: string = remarkPluginFrontmatter.readingTime;
 	}}
 	wideLayout={!!headings.length}
 >
+	<div
+		id="reading-progress"
+		class="fixed inset-x-0 top-0 z-100 h-1 origin-left scale-x-0 bg-accent"
+		aria-hidden="true"
+	></div>
 	<article class="grow wrap-break-word" data-pagefind-body>
 		<div id="blog-hero" class="mb-8"><Masthead content={post} readingTime={readingTime} updatedDate={effectiveUpdatedDate} /></div>
 		<div class="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
@@ -43,6 +80,8 @@ const readingTime: string = remarkPluginFrontmatter.readingTime;
 			</div>
 		</div>
 	</article>
+	<PostNav newer={newer} older={older} />
+	<RelatedPosts posts={relatedPosts} />
 	<button
 		class="hover:border-link fixed end-4 bottom-8 z-90 flex h-10 w-10 translate-y-28 cursor-pointer items-center justify-center rounded-full border-2 border-transparent bg-zinc-200 text-3xl opacity-0 transition-all transition-discrete duration-300 data-[show=true]:translate-y-0 data-[show=true]:opacity-100 sm:end-8 sm:h-12 sm:w-12 dark:bg-zinc-700"
 		data-show="false"
@@ -62,6 +101,10 @@ const readingTime: string = remarkPluginFrontmatter.readingTime;
 			<path d="M4.5 15.75l7.5-7.5 7.5 7.5" stroke-linecap="round" stroke-linejoin="round"></path>
 		</svg>
 	</button>
+	<script
+		type="application/ld+json"
+		set:html={JSON.stringify(jsonLd)}
+	/>
 </BaseLayout>
 
 <script>
@@ -81,4 +124,41 @@ const readingTime: string = remarkPluginFrontmatter.readingTime;
 
 	const observer = new IntersectionObserver(callback);
 	observer.observe(targetHeader);
+
+	// Reading progress bar
+	const progressBar = document.getElementById("reading-progress");
+	if (progressBar) {
+		const updateProgress = () => {
+			const scrollTop = document.documentElement.scrollTop;
+			const scrollHeight =
+				document.documentElement.scrollHeight - document.documentElement.clientHeight;
+			const progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+			progressBar.style.transform = `scaleX(${progress})`;
+		};
+		updateProgress();
+		document.addEventListener("scroll", updateProgress, { passive: true });
+	}
+
+	// Click a heading to copy its anchor link
+	const headings = document.querySelectorAll<HTMLHeadingElement>(
+		".prose :is(h2, h3, h4, h5, h6)[id]",
+	);
+	headings.forEach((heading) => {
+		heading.style.cursor = "pointer";
+		heading.title = "Click to copy link to this section";
+		heading.addEventListener("click", () => {
+			const url = `${window.location.origin}${window.location.pathname}#${heading.id}`;
+			history.replaceState(null, "", `#${heading.id}`);
+			navigator.clipboard?.writeText(url).then(() => {
+				const original = heading.dataset.copyLabel;
+				if (original === undefined) {
+					heading.dataset.copyLabel = heading.title;
+				}
+				heading.title = "Link copied!";
+				setTimeout(() => {
+					heading.title = heading.dataset.copyLabel ?? "Click to copy link to this section";
+				}, 1500);
+			});
+		});
+	});
 </script>

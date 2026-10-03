@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "@/components/FormattedDate.astro";
+
+interface Props {
+	posts: CollectionEntry<"post">[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+	posts.length > 0 && (
+		<section class="mt-16 border-t border-gray-200 pt-8 dark:border-gray-800">
+			<h2 class="title mb-6 text-lg">Related posts</h2>
+			<ul class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+				{posts.map((post: CollectionEntry<"post">) => (
+					<li>
+						<a
+							href={`/posts/${post.id}/`}
+							class="group flex h-full flex-col gap-2 rounded-lg border border-gray-200 p-4 transition-colors hover:border-link dark:border-gray-800"
+						>
+							<span class="font-semibold text-accent-2 group-hover:text-link line-clamp-2">
+								{post.data.title}
+							</span>
+							<FormattedDate
+								class="text-xs text-gray-500 dark:text-gray-400"
+								date={post.data.publishDate}
+							/>
+							{post.data.description && (
+								<span class="line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+									{post.data.description}
+								</span>
+							)}
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

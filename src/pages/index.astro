@@ -93,6 +93,13 @@ const pinnedPosts = allPostsByDate.filter((p) => p.data.pinned).slice(0, MAX_PIN
 				))
 			}
 		</ul>
+		<div class="mt-8 text-center">
+			<a class="cactus-link inline-flex items-center gap-1 font-medium" href="/posts/">
+				Read more
+				<span aria-hidden="true">→</span>
+				<span class="sr-only">posts in the archives</span>
+			</a>
+		</div>
 	</section>
 	<!-- {
 		latestNotes.length > 0 && (

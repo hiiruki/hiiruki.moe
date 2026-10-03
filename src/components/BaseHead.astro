@@ -12,6 +12,7 @@ const titleSeparator = "•";
 const siteTitle = `${title} ${titleSeparator} ${siteConfig.title}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const socialImageURL = new URL(ogImage ? ogImage : "/og-image.png", Astro.url).href;
+const logoURL = new URL("/icons/apple-touch-icon.png", Astro.url).href;
 ---
 
 <meta charset="utf-8" />
@@ -50,6 +51,7 @@ const socialImageURL = new URL(ogImage ? ogImage : "/og-image.png", Astro.url).h
 <meta content={socialImageURL} property="og:image" />
 <meta content="1200" property="og:image:width" />
 <meta content="630" property="og:image:height" />
+<meta content={logoURL} property="og:logo" />
 {
 	articleDate && (
 		<>
