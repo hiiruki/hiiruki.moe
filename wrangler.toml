@@ -4,6 +4,6 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
 [dev]
-port = 8788
+port = 8799
 upstream_protocol = "http"
 local_protocol = "http"
