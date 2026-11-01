@@ -64,7 +64,7 @@
     "autoprefixer": "^10.4.22",
     "pagefind": "^1.4.0",
     "prettier": "^3.7.3",
-    "prettier-plugin-astro": "0.14.1",
+    "prettier-plugin-astro": "1.1.2",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "reading-time": "^1.5.0",
     "tailwindcss": "4.1.17",
